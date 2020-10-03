@@ -17,6 +17,10 @@ class Z(EuclideanDomain):
         def __add__(self,other):
             _op_typecheck(other,allowed=[Z.SymbolicInteger])
             return Z.SymbolicInteger(self.val+other.val)
+
+        def __sub__(self,other):
+            _op_typecheck(other,allowed=[Z.SymbolicInteger])
+            return Z.SymbolicInteger(self.val-other.val)
         
         def __mul__(self,other):
             _op_typecheck(other,allowed=[Z.SymbolicInteger])
@@ -37,9 +41,10 @@ class Z(EuclideanDomain):
             return str(self.val)
             
     def __init__(self):
-        super().__init__(Z.SymbolicInteger(0),Z.SymbolicInteger(1))
+        super().__init__(Z.SymbolicInteger(0),Z.SymbolicInteger(1),Z.SymbolicInteger)
     
     def phi(self,element):
         if type(element) is not Z.SymbolicInteger:
             raise TypeError("Phi can only be applied to elements of the ring")
-        return Z.SymbolicInteger(abs(element.val))
+        return abs(element.val)
+
