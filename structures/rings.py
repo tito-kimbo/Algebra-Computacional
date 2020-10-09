@@ -9,6 +9,9 @@ class Ring(ABC):
         def __add__(self,other):
             pass
         @abstractmethod
+        def __add__(self,other):
+            raise NotImplementedError("Can't compute subtraction")
+        @abstractmethod
         def __mul__(self,other):
             pass
         @abstractmethod
@@ -18,9 +21,13 @@ class Ring(ABC):
         def __str__(self):
             pass
 
-    def __init__(self,zero,one):
+    def __init__(self,zero,one,elementClass=None):
         self.zero = zero
         self.one = one
+        if elementClass is None:
+            self.elementClass = Ring.Element
+        else:
+            self.elementClass = elementClass
 
 class IntegralDomain(Ring):
     """Class representing an integral domain."""
@@ -34,15 +41,20 @@ class IntegralDomain(Ring):
         def __mod__(self,other):
             pass
     
-    def __init__(self,zero,one):
-        super().__init__(zero,one)
+    def __init__(self,zero,one,elementClass=None):
+        if elementClass is None:
+            elementClass = IntegralDomain.IDElement
+        super().__init__(zero,one,elementClass)
     
 class EuclideanDomain(IntegralDomain):
     """Structure representing an euclidean domain."""
     
-    def __init__(self,zero,one):
-        super().__init__(zero,one)
+    def __init__(self,zero,one,elementClass=None):
+        if elementClass is None:
+            elementClass = IntegralDomain.IDElement
+        super().__init__(zero,one,elementClass)
     
     @abstractmethod
     def phi(self,element):
         pass
+
