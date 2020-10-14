@@ -9,8 +9,8 @@ class Ring(ABC):
         def __add__(self,other):
             pass
         @abstractmethod
-        def __add__(self,other):
-            raise NotImplementedError("Can't compute subtraction")
+        def __sub__(self,other):
+            pass
         @abstractmethod
         def __mul__(self,other):
             pass
@@ -19,6 +19,9 @@ class Ring(ABC):
             pass
         @abstractmethod
         def __str__(self):
+            pass
+        @abstractmethod
+        def opp(self):
             pass
 
     def __init__(self,zero,one,elementClass=None):
@@ -57,4 +60,3 @@ class EuclideanDomain(IntegralDomain):
     @abstractmethod
     def phi(self,element):
         pass
-
