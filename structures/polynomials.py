@@ -29,10 +29,14 @@ class PolynomialRing(IntegralDomain):
             def __sub__(self,other):
                 return Polynomial([x-y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=zero)])
             
+            # Convolutional product
             def __mul__(self,other):
-                # TBD
                 D = self.deg()*other.deg()+1
-                aux = [None for _ in range(D)]
+                coefs = zip_longest(self.coefs,other.coefs,fillvalue=one)
+                aux = []
+                for i in range(D):
+                    aux.append(sum([coefs[k][0]*coefs[i-k][1] for k in range(i)]))
+                return Polynomial(aux)
                         
             def __eq__(self,other):
                 return self.coefs == other.coefs
