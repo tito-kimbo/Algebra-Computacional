@@ -1,53 +1,48 @@
 from rings import *
+from itertools import zip_longest
 
-# Univariate polynomials over a Ring
-class Polynomial:
-
-    def __init__(self,coefs):
-        self.coefs = coefs
-    
-    def deg(self):
-        return len(self.coefs)-1
-    
-    # ziplongest would be more simple ut zero element is not accessible
-    def __add__(self,other):
-        d = min(self.deg(),other.deg())+1
-        D = max(self.deg(),other.deg())+1
-        aux = [self.coefs[i]+other.coefs[i] for i in range(d)]
-        for i in range(d,self.deg()):
-            aux.append(self.coefs[i])
-        for i in range(d,other.deg()):
-            aux.append(other.coefs[i])
-        return Polynomial(aux)
-
-    def __sub__(self,other):
-        d = min(self.deg(),other.deg())+1
-        D = max(self.deg(),other.deg())+1
-        aux = [self.coefs[i]-other.coefs[i] for i in range(d)]
-        for i in range(d,self.deg()):
-            aux.append(self.coefs[i])
-        for i in range(d,other.deg()):
-            aux.append(other.coefs[i].opp())
-        return Polynomial(aux)
-    
-    def __mul__(self,other):
-        # TBD
-        D = self.deg()*other.deg()+1
-        aux = [None for _ in range(D)]
-                
-    def __eq__(self,other):
-        return self.coefs == other.coefs
-    
-    def __str__(self):
-        s = str(self.coefs[0])
-        for i in range(1,self.deg()):
-            s += " + " + str(self.coefs[i]) + " X^" + str(i)
+VARS = ["X","Y","Z","T","U","V"] # Could be extended arbitrarily with sub indexing
 
 # Polynomials over integral domains, WIP
 class PolynomialRing(IntegralDomain):
         
     def __init__(self,ring,zero,one,elementClass=None):
         assert isinstance(ring,Ring)
+        
+        # For string conversion
+        self.chain = 0
+        if isinstance(ring,PolynomialRing):
+            self.chain = ring.chain+1
+        
+        # Univariate polynomials over a Ring - dynamically linked to the current ring
+        class Polynomial:
+
+            def __init__(self,coefs):
+                self.coefs = coefs
+            
+            def deg(self):
+                return len(self.coefs)-1
+            
+            def __add__(self,other):
+                return Polynomial([x+y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=zero)])
+
+            def __sub__(self,other):
+                return Polynomial([x-y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=zero)])
+            
+            def __mul__(self,other):
+                # TBD
+                D = self.deg()*other.deg()+1
+                aux = [None for _ in range(D)]
+                        
+            def __eq__(self,other):
+                return self.coefs == other.coefs
+            
+            def __str__(self):
+                s = "(" + str(self.coefs[0])
+                for i in range(1,self.deg()):
+                    s += " + " + str(self.coefs[i]) + "*" + VARS[self.chain] + "^" + str(i)
+                s += ")"
+            
         if elementClass is None:
             elementClass = Polynomial
         self.ring = ring
