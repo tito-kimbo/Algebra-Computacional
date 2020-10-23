@@ -36,6 +36,10 @@ class Z(EuclideanDomain):
         def __mod__(self,other):
             _op_typecheck(other,allowed=[Z.SymbolicInteger])
             return Z.SymbolicInteger(self.val%other.val)
+            
+        def opp(self,other):
+            _op_typecheck(other,allowed=[Z.SymbolicInteger])
+            return Z.symbolicInteger(-1)*other
         
         def __str__(self):
             return str(self.val)
