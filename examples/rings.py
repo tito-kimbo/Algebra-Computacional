@@ -1,9 +1,10 @@
 from structures.rings import *
+from structures.ideals import *
 
 OPERAND_ERROR = "All operands must be within the following list "
 def _op_typecheck(operand,allowed):
-            if not type(operand) in allowed:
-                raise TypeError(OPERAND_ERROR+" "+str(allowed))
+    if not type(operand) in allowed:
+        raise TypeError(OPERAND_ERROR+" "+str(allowed))
 
 
 class Z(EuclideanDomain):
@@ -52,8 +53,15 @@ class Z(EuclideanDomain):
             raise TypeError("Phi can only be applied to elements of the ring")
         return abs(element.val)
 
+class NZ(Ideal):
+    def __init__(self,generator):
+        super().__init__(Z(),[generator])
+    
+    def has(self,element):
+        return element % self.generators[0] == self.ring.zero
 
 
+# Is this necessary?
 class ZModFactory:
     """Utility class that produces any ring of integers modulo n"""
 

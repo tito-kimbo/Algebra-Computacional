@@ -31,6 +31,9 @@ class Ring(ABC):
             self.elementClass = Ring.Element
         else:
             self.elementClass = elementClass
+    
+    def build(self,*args,**kwargs):
+        return self.elementClass(*args,**kwargs)
 
 class IntegralDomain(Ring):
     """Class representing an integral domain."""

@@ -75,3 +75,10 @@ class PolynomialRing(IntegralDomain):
             elementClass = Polynomial
         self.ring = ring
         super().__init__(zero,one,elementClass)
+    
+    def build(self,args):
+        l = []
+        for i in range(len(args)):
+            l.append(self.ring.build(args[i]))
+        return self.elementClass(l)
+        
