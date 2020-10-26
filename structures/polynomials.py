@@ -18,9 +18,9 @@ def multAll(l,neutral):
 # Polynomials over integral domains, WIP
 class PolynomialRing(IntegralDomain):
         
-    def __init__(self,ring,zero,one,elementClass=None):
+    def __init__(self,ring,elementClass=None):
         assert isinstance(ring,Ring)
-        
+            
         # For string conversion
         self.chain = 0
         if isinstance(ring,PolynomialRing):
@@ -39,22 +39,22 @@ class PolynomialRing(IntegralDomain):
                 return len(self.coefs)-1
             
             def __add__(self,other):
-                return Polynomial([x+y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=zero)])
+                return Polynomial([x+y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=ring.zero)])
 
             def __sub__(self,other):
-                return Polynomial([x-y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=zero)])
+                return Polynomial([x-y for x,y in zip_longest(self.coefs,other.coefs,fillvalue=ring.zero)])
             
             # Convolutional product
             def __mul__(self,other):
                 D = self.deg()+other.deg()+1
                 c,o = self.coefs[:],other.coefs[:] # shallow copies to avoid issues with original
                 while len(c) < D:
-                    c.append(zero)
-                coefs = list(zip_longest(c,o,fillvalue=zero))
+                    c.append(ring.zero)
+                coefs = list(zip_longest(c,o,fillvalue=ring.zero))
                 aux = []
                 for i in range(D):
-                    aux.append(addAll([coefs[k][0]*coefs[i-k][1] for k in range(i+1)],zero))
-                while len(aux)!=0 and aux[-1] == zero:
+                    aux.append(addAll([coefs[k][0]*coefs[i-k][1] for k in range(i+1)],ring.zero))
+                while len(aux)!=0 and aux[-1] == ring.zero:
                     aux.pop(-1)
                 return Polynomial(aux)
                         
@@ -68,13 +68,10 @@ class PolynomialRing(IntegralDomain):
                 s += ")"
                 return s
         
-        zero = Polynomial([zero])
-        one = Polynomial([one])
-        
         if elementClass is None:
             elementClass = Polynomial
         self.ring = ring
-        super().__init__(zero,one,elementClass)
+        super().__init__(Polynomial([ring.zero]),Polynomial([ring.one]),elementClass)
     
     def build(self,args):
         l = []
