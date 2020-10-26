@@ -1,3 +1,5 @@
+#test
+
 from structures.rings import EuclideanDomain, IntegralDomain
 
 
