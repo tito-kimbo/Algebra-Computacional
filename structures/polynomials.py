@@ -1,4 +1,4 @@
-from structures.rings import *
+from structures.rings import Ring, IntegralDomain
 from itertools import zip_longest
 from utils import assuming
 

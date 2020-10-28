@@ -1,5 +1,5 @@
 from abc import ABC,abstractmethod
-from rings import *
+from rings import EuclideanDomain, IntegralDomain
 
 class Field(EuclideanDomain):
     """Class representing a field."""
