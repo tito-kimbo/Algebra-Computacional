@@ -1,10 +1,12 @@
 from abc import ABC,abstractmethod
-from structures.rings import * 
+from structures.rings import Ring
+from utils import assuming
 
 class Ideal(ABC):
     """Class representing an ideal over a ring."""
     def __init__(self,ring,generators):
-        assert isinstance(ring, Ring)
+        assuming(isinstance(ring, Ring),"ring must be a Ring")
+
         #for g in generators:
         #    assert isinstance(g, ring.elementClass)
         self.ring = ring
@@ -20,7 +22,9 @@ class Ideal(ABC):
 class Quotient(Ring):
     
     def __init__(self,ring,ideal):
-        assert isinstance(ring,Ring) and isinstance(ideal,Ideal)
+        assuming(isinstance(ring,Ring), "ring must be a Ring")
+        assuming(isinstance(ideal,Ideal), "ideal must be an Ideal")
+
         self.ring = ring
         self.ideal = ideal
         
@@ -28,7 +32,7 @@ class Quotient(Ring):
             """Class representing an element of the ring."""
             
             def __init__(self,rep):
-                assert isinstance(rep,Ring.Element)
+                assuming(isinstance(rep,Ring.Element), "rep must be a ring element")
                 self.rep = rep
             
             def __add__(self,other):

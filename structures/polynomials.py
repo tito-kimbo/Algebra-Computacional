@@ -1,5 +1,6 @@
 from structures.rings import *
 from itertools import zip_longest
+from utils import assuming
 
 VARS = ["X","Y","Z","T","U","V"] # Could be extended arbitrarily with sub indexing
 
@@ -19,7 +20,7 @@ def multAll(l,neutral):
 class PolynomialRing(IntegralDomain):
         
     def __init__(self,ring,elementClass=None):
-        assert isinstance(ring,Ring)
+        assuming(isinstance(ring,Ring), "ring must be a Ring")
             
         # For string conversion
         self.chain = 0
@@ -32,7 +33,7 @@ class PolynomialRing(IntegralDomain):
 
             def __init__(self,coefs):
                 for c in coefs:
-                    assert type(c)==ring.elementClass
+                    assuming(type(c)==ring.elementClass, "coefficients must be ring elements")
                 self.coefs = coefs
             
             def deg(self):
