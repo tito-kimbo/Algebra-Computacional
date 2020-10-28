@@ -1,19 +1,21 @@
 from structures.rings import EuclideanDomain, IntegralDomain
 
 
-def eea(R: EuclideanDomain, f: IntegralDomain.IDElement, g: IntegralDomain.IDElement):
+def eea(f: IntegralDomain.Element, g: IntegralDomain.Element):
     """ Extended Euclid Algorithm
         Given two elements of an euclidean domain, compute the gcd
         and the bezout identity elements.
-        Returns (gcd, s, t) such that gcd = s*g + t*f
+        Returns (gcd, s, t) such that gcd = s*f + t*g
     """
 
-    if not (isinstance(f, R.elementClass) and isinstance(g, R.elementClass)):
-        raise ValueError("f and g must be elements of R")
+    if f.ring != g.ring:
+        raise ValueError("f and g must be elements of the same ring")
+
+    R = f.ring
 
     r = [f, g]
-    s = [R.zero, R.one]
-    t = [R.one, R.zero]
+    s = [R.one, R.zero]
+    t = [R.zero, R.one]
 
     while r[-1] != R.zero:
         q = r[-2] / r[-1]
@@ -33,7 +35,7 @@ def eea_test():
 
     f = z.SymbolicInteger(68)
     g = z.SymbolicInteger(129)
-    gcd,s,t = eea(z, f, g)
+    gcd,s,t = eea(f, g)
     assert(gcd.val == 1)
     assert(gcd == s*g + t*f)
     print(f"{str(gcd)} is the gcd of {str(f)} and {str(g)}")
@@ -41,7 +43,7 @@ def eea_test():
 
     f = z.SymbolicInteger(128)
     g = z.SymbolicInteger(24)
-    gcd,s,t = eea(z, f, g)
+    gcd,s,t = eea(f, g)
     assert(gcd.val == 8)
     assert(gcd == s*g + t*f)
     print(f"{str(gcd)} is the gcd of {str(f)} and {str(g)}")

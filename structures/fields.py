@@ -1,10 +1,10 @@
 from abc import ABC,abstractmethod
-from rings import EuclideanDomain, IntegralDomain
+from structures.rings import EuclideanDomain, IntegralDomain
 
 class Field(EuclideanDomain):
     """Class representing a field."""
     
-    class FieldElement(IntegralDomain.IDElement):
+    class Element(IntegralDomain.Element):
         """Class representing an element of a field."""
         @abstractmethod
         def inverse(self):
@@ -12,10 +12,3 @@ class Field(EuclideanDomain):
         
     def phi(self,element):
         return 1;
-    
-    def __init__(self,zero,one,elementClass=None):
-        if elementClass is None:
-            elementClass = Field.FieldElement
-        super().__init__(zero,one,elementClass)
-
-
