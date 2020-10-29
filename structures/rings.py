@@ -9,25 +9,25 @@ class Ring(ABC):
 
         @abstractmethod
         def __add__(self,other):
-            assuming(isinstance(other,self.__class__),
+            assuming(self.ring == other.ring,
                     "You can only add elements of the same ring")
             pass
 
         @abstractmethod
         def __sub__(self,other):
-            assuming(isinstance(other,self.__class__),
+            assuming(self.ring == other.ring,
                     "You can only substract elements of the same ring")
             pass
 
         @abstractmethod
         def __mul__(self,other):
-            assuming(isinstance(other,self.__class__),
+            assuming(self.ring == other.ring,
                     "You can only multiply elements of the same ring")
             pass
 
         @abstractmethod
         def __eq__(self,other):
-            return isinstance(other,self.__class__)
+            return self.ring == other.ring
             
         @abstractmethod
         def __str__(self):
@@ -47,6 +47,14 @@ class Ring(ABC):
     def build(self,*args,**kwargs):
         return self.Element(*args,**kwargs)
 
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
 
 class IntegralDomain(Ring):
     """Class representing an integral domain."""
@@ -55,12 +63,12 @@ class IntegralDomain(Ring):
         """Class representing an element of the ID."""
         @abstractmethod
         def __truediv__(self,other):
-            assuming(isinstance(other,self.__class__),
+            assuming(self.ring == other.ring,
                     "You can only divide elements of the same ring")
             pass
         @abstractmethod
         def __mod__(self,other):
-            assuming(isinstance(other,self.__class__),
+            assuming(self.ring == other.ring,
                     "You can only calculate the remainder between elements of the same ring")
             pass
     

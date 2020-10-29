@@ -69,8 +69,22 @@ class Z(EuclideanDomain):
             raise TypeError("Phi can only be applied to elements of the ring")
         return abs(element.val)
 
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+
+    def __str__(self):
+        return "\N{DOUBLE-STRUCK CAPITAL Z}"
+
+    def __mul__(self, other):
+        _op_typecheck(other,allowed=[Z.Element, int])
+        return NZ(other)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
 
 class NZ(Ideal):
+
     def __init__(self,generator):
         if isinstance(generator, int):
             generator = Z.build(generator)
@@ -87,6 +101,9 @@ class NZ(Ideal):
 
     def is_maximal(self):
         return self._maximal
+
+    def __str__(self):
+        return f"{self.generators[0]}{Z}"
 
 
 Z = Z()

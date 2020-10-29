@@ -14,6 +14,13 @@ class Ideal(ABC):
 
         self.ring = ring
         self.generators = generators
+
+    def __eq__(self,other):
+        if isinstance(other, Ideal):
+            # Better way?
+            return self.ring == self.ring and self.generators == other.generators
+        else:
+            return False
     
     @abstractmethod
     def has(self,element):
@@ -27,6 +34,14 @@ class Ideal(ABC):
     def is_maximal(self):
         pass
 
+    # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
+    def __rtruediv__(self, other):
+        return Quotient(other, self)
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
 
 class BaseQuotient(ABC):
     
@@ -35,11 +50,20 @@ class BaseQuotient(ABC):
         self.ideal = ideal
         super().__init__(**kw)
 
+    def __eq__(self,other):
+        if isinstance(other, BaseQuotient):
+            return self.ring == other.ring and self.ideal == other.ideal
+        else:
+            return False
+
     def build(self, *args, rep=None, **kwargs):
         if rep is not None:
             return self.Element(rep)
         else:
             return self.Element(self.ring.build(*args, **kwargs))
+
+    def __str__(self):
+        return f"{self.ring}/{self.ideal}"
 
 
 class RingQuotient(BaseQuotient, Ring):
@@ -92,6 +116,11 @@ class FieldQuotient(BaseQuotient, Field):
     class Element(RingQuotient.Element, Field.Element):
         
         def inverse(self):
+            if self == self.ring.zero:
+                raise ValueError(f"{self} does not have an inverse")
+            return self._inverse()
+
+        def _inverse(self):
             raise NotImplemented()
 
         def __truediv__(self, other):
@@ -103,22 +132,18 @@ class FieldQuotient(BaseQuotient, Field):
             return self - (self / other)
 
 
-    def __init__(self,ring,ideal,inverse=None,**kw):
+    def __init__(self,ring,ideal,_inverse=None,**kw):
 
         assuming(ideal.is_maximal, "ideal must be maximal")
         
-        if inverse:
-            self.Element.inverse = inverse
+        if _inverse is not None:
+            self.Element._inverse = _inverse
 
         super().__init__(ring=ring, ideal=ideal, zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
 
 
 
-# Existing quotients are stored to avoid duplication
-
-_quotients = dict()
-
-def _new_quotient(ring, ideal):
+def Quotient(ring, ideal):
     if ideal.is_maximal():
         if isinstance(ring, EuclideanDomain):
             # We can calculate the inverse using the eea if the ring is an ED
@@ -127,15 +152,7 @@ def _new_quotient(ring, ideal):
                 gcd, inv, _ = eea(self.rep,self.ring.ideal.generators[0])
                 return self.__class__(inv)
 
-            return FieldQuotient(ring=ring, ideal=ideal,inverse=inv)
+            return FieldQuotient(ring=ring, ideal=ideal,_inverse=inv)
         return FieldQuotient(ring, ideal)
     else:
         return RingQuotient(ring, ideal)
-
-def Quotient(ring, ideal):
-    if (ring,ideal) in _quotients:
-        return _quotients[(_ring,ideal)]
-    else:
-        quot = _new_quotient(ring, ideal)
-        _quotients[(ring,ideal)] = quot
-        return quot
