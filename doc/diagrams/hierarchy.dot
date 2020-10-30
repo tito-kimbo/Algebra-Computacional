@@ -1,0 +1,12 @@
+digraph hierarchy {
+	rankdir = "BT";
+	node [shape = "box"];
+
+	Field -> EuclideanDomain -> IntegralDomain -> Ring;
+	FieldQuotient -> BaseQuotient;
+	RingQuotient -> BaseQuotient;
+	FieldQuotient -> Field;
+	RingQuotient -> Ring;
+	PolynomialRing -> IntegralDomain;
+	Z -> EuclideanDomain;
+}

@@ -124,11 +124,11 @@ class FieldQuotient(BaseQuotient, Field):
             raise NotImplemented()
 
         def __truediv__(self, other):
-            super().__truediv__(self,other)
-            return self * other.inverse
+            super().__truediv__(other)
+            return self * other.inverse()
 
         def __mod__(self, other):
-            super().__truediv__(self,other)
+            super().__truediv__(other)
             return self - (self / other)
 
 

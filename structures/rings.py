@@ -46,10 +46,7 @@ class Ring(ABC):
 
         obj = super(Ring, cls).__new__(cls)
 
-        class E(cls.Element):
-            ring = obj
-
-        obj.Element = E
+        obj.Element = type('.'.join([cls.__module__,cls.Element.__qualname__]), (cls.Element,), {"ring": obj})
         return obj
 
     def __init__(self,zero,one, **kw):
