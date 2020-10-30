@@ -21,7 +21,7 @@ Below are some examples of common operations.
 160
 >>> print(i128*i32)
 4096
->>> print(i128/i32)
+>>> print(i128//i32)
 4
 ```
 
@@ -50,7 +50,6 @@ TypeError: unsupported operand type(s) for /: 'structures.ideals.RingQuotient.El
 False
 >>> print(q2_.ring)
 ℤ/5ℤ
->>> q3 = Z5.build(3); q2_ = Z5.build(2)
 >>> Z5.one / q3 == q2_
 True
 ```

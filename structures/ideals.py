@@ -36,7 +36,7 @@ class Ideal(ABC):
         pass
 
     # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
-    def __rfloordiv__(self, other):
+    def __rtruediv__(self, other):
         return Quotient(other, self)
 
     def __str__(self):

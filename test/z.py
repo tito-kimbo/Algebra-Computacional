@@ -17,14 +17,14 @@ class TestZ(TestEuclideanDomain):
 
 class TestZModRing(TestRing):
 
-    ring = Z//(6*Z)
+    ring = Z/(6*Z)
 
     buildZero = [0]
     buildOne = [1]
     buildTwo = [2]
 
 
-Z17 = Z//(17*Z)
+Z17 = Z/(17*Z)
 
 class TestZModField(TestField):
 

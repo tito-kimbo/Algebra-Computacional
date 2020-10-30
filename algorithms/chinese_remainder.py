@@ -12,7 +12,7 @@ def modinv(x,f,id):
     if x.ring != f.ring:
         raise ValueError('Both elements must belong to the same ring')
     R = x.ring
-    Q = R // id(f)
+    Q = R / id(f)
     return Q.build(x.val).inverse().val 
     
 
@@ -30,5 +30,5 @@ def chinese_remainder(eqs,mods,id):
             raise ValueError('The moduli are not pairwise coprime')
 
     N = reduce((lambda x,y:x*y), mods)
-    r = reduce((lambda x,y:x+y), [eqs[i]*(N/mods[i])*modinv(N/mods[i],mods[i],id) for i in range(L)])
+    r = reduce((lambda x,y:x+y), [eqs[i]*(N//mods[i])*modinv(N//mods[i],mods[i],id) for i in range(L)])
     return r
