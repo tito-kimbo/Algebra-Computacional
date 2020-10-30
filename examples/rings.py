@@ -62,10 +62,10 @@ class Z(EuclideanDomain):
             return True
             
     def __init__(self):
-        super().__init__(Z.Element(0),Z.Element(1))
+        super().__init__(self.Element(0),self.Element(1))
     
     def phi(self,element):
-        if type(element) is not Z.Element:
+        if type(element) is not self.Element:
             raise TypeError("Phi can only be applied to elements of the ring")
         return abs(element.val)
 
@@ -76,7 +76,7 @@ class Z(EuclideanDomain):
         return "\N{DOUBLE-STRUCK CAPITAL Z}"
 
     def __mul__(self, other):
-        _op_typecheck(other,allowed=[Z.Element, int])
+        _op_typecheck(other,allowed=[self.Element, int])
         return NZ(other)
 
     def __rmul__(self, other):

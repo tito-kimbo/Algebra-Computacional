@@ -7,6 +7,8 @@ class Ring(ABC):
     class Element(ABC): 
         """Class representing an element of the ring."""
 
+        ring = None     # See Ring.__new__
+
         @abstractmethod
         def __add__(self,other):
             assuming(self.ring == other.ring,
@@ -38,10 +40,22 @@ class Ring(ABC):
             pass
 
 
+    def __new__(cls, *args, **kwargs): 
+        # Decorates the Element class before construction of the ring
+        # so that self.Element.ring == self
+
+        obj = super(Ring, cls).__new__(cls)
+
+        class E(cls.Element):
+            ring = obj
+
+        obj.Element = E
+        return obj
+
     def __init__(self,zero,one, **kw):
         self.zero = zero
         self.one = one
-        self.Element.ring = self
+
         super().__init__(**kw)
     
     def build(self,*args,**kwargs):
