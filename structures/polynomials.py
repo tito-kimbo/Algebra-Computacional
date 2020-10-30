@@ -15,7 +15,7 @@ def addAll(l,neutral):
 class PolynomialRing(IntegralDomain):
 
     # Univariate polynomials over a Ring - dynamically linked to the current ring
-    class Element:
+    class Element(Ring.Element):
 
         def __init__(self,coefs):
             for c in coefs:
@@ -45,9 +45,13 @@ class PolynomialRing(IntegralDomain):
             while len(aux)!=0 and aux[-1] == ring.zero:
                 aux.pop(-1)
             return self.__class__(aux)
+
+        def opp(self):
+            return self.__class__(list(map(lambda x: x.opp, self.coefs)))
+
                     
         def __eq__(self,other):
-            return self.coefs == other.coefs
+            return super().__eq__(other) and self.coefs == other.coefs
         
         def __str__(self):
             s = "(" + str(self.coefs[0])
