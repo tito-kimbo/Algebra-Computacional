@@ -34,6 +34,9 @@ class Ring(ABC):
         @abstractmethod
         def __str__(self):
             pass
+        
+        def __repr__(self):
+            return self.__str__()
 
         @abstractmethod
         def opp(self):
@@ -61,10 +64,13 @@ class Ring(ABC):
     @abstractmethod
     def __eq__(self, other):
         pass
-
+    
     @abstractmethod
     def __str__(self):
         pass
+    
+    def __repr__(self):
+        return self.__str__()
 
 
 class IntegralDomain(Ring):

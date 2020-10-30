@@ -1,8 +1,9 @@
 from abc import ABC,abstractmethod
 from structures.rings import Ring, EuclideanDomain
 from structures.fields import Field
-from algorithms.eea import eea
+from algorithms.divisibility import eea
 from utils import assuming
+from functools import reduce
 
 class Ideal(ABC):
     """Class representing an ideal over a ring."""
@@ -35,12 +36,15 @@ class Ideal(ABC):
         pass
 
     # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
-    def __rtruediv__(self, other):
+    def __rfloordiv__(self, other):
         return Quotient(other, self)
 
     @abstractmethod
     def __str__(self):
         pass
+    
+    def __repr__(self):
+        return self.__str__()
 
 
 class BaseQuotient(ABC):
@@ -75,30 +79,30 @@ class RingQuotient(BaseQuotient, Ring):
             assuming(isinstance(rep,Ring.Element),
                     f"rep must be a ring element")
 
-            self.rep = rep
+            self.val = rep
         
         def __add__(self,other):
             super().__add__(other)
-            return self.__class__(self.rep+other.rep)
+            return self.__class__(self.val+other.val)
             
         def __sub__(self,other):
             super().__sub__(other)
-            return self.__class__(self.rep-other.rep)
+            return self.__class__(self.val-other.val)
         
         def __mul__(self,other):
             super().__mul__(other)
-            return self.__class__(self.rep*other.rep)
+            return self.__class__(self.val*other.val)
         
         def __eq__(self,other):
             if not super().__eq__(other):
                 return False
-            return self.ring.ideal.has(self.rep-other.rep)
+            return self.ring.ideal.has(self.val-other.val)
             
         def __str__(self):
-            return "["+str(self.rep)+"]"
+            return "["+str(self.val)+"]"
             
         def opp(self):
-            return self.__class__(self.rep.opp())
+            return self.__class__(self.val.opp())
 
         def reduce_rep(self):
             raise NotImplemented()
@@ -149,7 +153,7 @@ def Quotient(ring, ideal):
             # We can calculate the inverse using the eea if the ring is an ED
 
             def inv(self):
-                gcd, inv, _ = eea(self.rep,self.ring.ideal.generators[0])
+                gcd, inv, _ = eea(self.val,self.ring.ideal.generators[0])
                 return self.__class__(inv)
 
             return FieldQuotient(ring=ring, ideal=ideal,_inverse=inv)
