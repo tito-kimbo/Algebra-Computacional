@@ -1,7 +1,7 @@
 from abc import ABC,abstractmethod
 from structures.rings import Ring, EuclideanDomain
 from structures.fields import Field
-from algorithms.eea import eea
+from algorithms.divisibility import gcd, eea
 from utils import assuming
 
 class Ideal(ABC):
@@ -38,9 +38,42 @@ class Ideal(ABC):
     def __rtruediv__(self, other):
         return Quotient(other, self)
 
-    @abstractmethod
     def __str__(self):
-        pass
+        insides = ','.join(map(str, self.generators))
+        return f"({insides})"
+
+
+class EDIdeal(Ideal):
+    """ Ideal of an EuclideanDomain """
+
+    def __init__(self,ring, generators):
+        assuming(isinstance(ring, EuclideanDomain),"ring must be an EuclideanDomain")
+
+        for g in generators:
+            assuming(isinstance(g, ring.Element))
+
+        if len(generators) > 1:
+            self.generator = gdc(generators)
+        else:
+            self.generator = generators[0]
+
+        super().__init__(ring, [self.generator])
+
+
+    def has(self,element):
+        return element % self.generator == self.ring.zero
+
+    def is_principal(self):
+        # Euclidean domains are principal ideal domains
+        return True
+
+    def is_maximal(self):
+        # In a PID, maximal <=> nonzero and prime
+        # Also, nonzero and prime <=> ideal = (p) and p is prime
+        return self.generator.is_prime()
+
+    def __str__(self):
+        return f"{self.generator}{self.ring}"
 
 
 class BaseQuotient(ABC):
@@ -97,11 +130,11 @@ class RingQuotient(BaseQuotient, Ring):
         def __str__(self):
             return "["+str(self.rep)+"]"
             
-        def opp(self):
-            return self.__class__(self.rep.opp())
+        def __neg__(self):
+            return self.__class__(-self.rep)
 
         def reduce_rep(self):
-            raise NotImplemented()
+            raise NotImplementedError()
     
     def __init__(self,ring,ideal,**kw):
 
@@ -121,15 +154,23 @@ class FieldQuotient(BaseQuotient, Field):
             return self._inverse()
 
         def _inverse(self):
-            raise NotImplemented()
+            gcd, inv, _ = eea(self.rep,self.ring.ideal.generator)
+            return self.__class__(inv)
 
         def __truediv__(self, other):
             super().__truediv__(other)
             return self * other.inverse()
 
+        def __floordiv__(self, other):
+            super().__floordiv__(other)
+            return self.__truediv__(other)
+
         def __mod__(self, other):
-            super().__truediv__(other)
-            return self - (self / other)
+            super().__mod__(other)
+            return self.ring.zero
+
+        def is_prime(self):
+            raise NotImplementedError()
 
 
     def __init__(self,ring,ideal,_inverse=None,**kw):
@@ -144,15 +185,7 @@ class FieldQuotient(BaseQuotient, Field):
 
 
 def Quotient(ring, ideal):
-    if ideal.is_maximal():
-        if isinstance(ring, EuclideanDomain):
-            # We can calculate the inverse using the eea if the ring is an ED
-
-            def inv(self):
-                gcd, inv, _ = eea(self.rep,self.ring.ideal.generators[0])
-                return self.__class__(inv)
-
-            return FieldQuotient(ring=ring, ideal=ideal,_inverse=inv)
+    if isinstance(ring, EuclideanDomain) and ideal.is_maximal():
         return FieldQuotient(ring, ideal)
     else:
         return RingQuotient(ring, ideal)

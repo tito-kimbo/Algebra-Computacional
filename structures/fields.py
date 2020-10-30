@@ -9,6 +9,10 @@ class Field(EuclideanDomain):
         @abstractmethod
         def inverse(self):
             pass
+
+        @abstractmethod
+        def __truediv__(self,other):
+            pass
         
     def phi(self,element):
         return 1;

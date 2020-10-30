@@ -1,6 +1,7 @@
 from structures.rings import EuclideanDomain
-from structures.ideals import Ideal
+from structures.ideals import EDIdeal
 from math import floor, sqrt
+from utils import assuming
 
 
 OPERAND_ERROR = "All operands must be within the following list "
@@ -39,7 +40,7 @@ class Z(EuclideanDomain):
         def __eq__(self,other):
             return type(other) is type(self) and self.val==other.val
         
-        def __truediv__(self,other):
+        def __floordiv__(self,other):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val//other.val)
         
@@ -47,19 +48,19 @@ class Z(EuclideanDomain):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val%other.val)
             
-        def opp(self,other):
-            _op_typecheck(other,allowed=[Z.Element])
-            return Z.symbolicInteger(-1)*other
+        def __neg__(self):
+            return Z.Element(-self.val)
 
         def __str__(self):
             return str(self.val)
 
-        def _is_prime(self):
+        def is_prime(self):
             # Temporal
             for i in range(2,floor(sqrt(self.val)) + 1):
                 if self.val % i == 0:
                     return False
-            return True
+            # TODO negative values??
+            return self.val > 1
             
     def __init__(self):
         super().__init__(self.Element(0),self.Element(1))
@@ -76,34 +77,13 @@ class Z(EuclideanDomain):
         return "\N{DOUBLE-STRUCK CAPITAL Z}"
 
     def __mul__(self, other):
-        _op_typecheck(other,allowed=[self.Element, int])
-        return NZ(other)
+        if isinstance(other, int):
+            other = self.build(other)
+        assuming(isinstance(other, self.Element) and other.ring == self, f"Can't multiply {self} and {other}")
+        return EDIdeal(self, [other])
 
     def __rmul__(self, other):
         return self.__mul__(other)
-
-
-class NZ(Ideal):
-
-    def __init__(self,generator):
-        if isinstance(generator, int):
-            generator = Z.build(generator)
-        super().__init__(Z,[generator])
-
-        # Is there a better way? A general one?
-        self._maximal = generator._is_prime()
-    
-    def has(self,element):
-        return element % self.generators[0] == self.ring.zero
-
-    def is_principal(self):
-        return True
-
-    def is_maximal(self):
-        return self._maximal
-
-    def __str__(self):
-        return f"{self.generators[0]}{Z}"
 
 
 Z = Z()

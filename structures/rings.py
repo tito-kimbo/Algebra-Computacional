@@ -11,33 +11,36 @@ class Ring(ABC):
 
         @abstractmethod
         def __add__(self,other):
-            assuming(self.ring == other.ring,
+            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
                     "You can only add elements of the same ring")
             pass
 
         @abstractmethod
         def __sub__(self,other):
-            assuming(self.ring == other.ring,
+            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
                     "You can only substract elements of the same ring")
             pass
 
         @abstractmethod
         def __mul__(self,other):
-            assuming(self.ring == other.ring,
+            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
                     "You can only multiply elements of the same ring")
             pass
 
         @abstractmethod
         def __eq__(self,other):
-            return self.ring == other.ring
+            return isinstance(other, self.__class__) and self.ring == other.ring
             
         @abstractmethod
         def __str__(self):
             pass
 
         @abstractmethod
-        def opp(self):
+        def __neg__(self):
             pass
+
+        def __repr__(self):
+            return self.__str__()
 
 
     def __new__(cls, *args, **kwargs): 
@@ -73,7 +76,7 @@ class IntegralDomain(Ring):
     class Element(Ring.Element): 
         """Class representing an element of the ID."""
         @abstractmethod
-        def __truediv__(self,other):
+        def __floordiv__(self,other):
             assuming(self.ring == other.ring,
                     "You can only divide elements of the same ring")
             pass
@@ -81,6 +84,10 @@ class IntegralDomain(Ring):
         def __mod__(self,other):
             assuming(self.ring == other.ring,
                     "You can only calculate the remainder between elements of the same ring")
+            pass
+
+        @abstractmethod
+        def is_prime(self):
             pass
     
     
