@@ -3,6 +3,7 @@ from structures.rings import Ring, EuclideanDomain
 from structures.fields import Field
 from algorithms.divisibility import gcd, eea
 from utils import assuming
+from functools import reduce
 
 class Ideal(ABC):
     """Class representing an ideal over a ring."""
@@ -35,12 +36,15 @@ class Ideal(ABC):
         pass
 
     # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
-    def __rtruediv__(self, other):
+    def __rfloordiv__(self, other):
         return Quotient(other, self)
 
     def __str__(self):
         insides = ','.join(map(str, self.generators))
         return f"({insides})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class EDIdeal(Ideal):
@@ -108,30 +112,30 @@ class RingQuotient(BaseQuotient, Ring):
             assuming(isinstance(rep,Ring.Element),
                     f"rep must be a ring element")
 
-            self.rep = rep
+            self.val = rep
         
         def __add__(self,other):
             super().__add__(other)
-            return self.__class__(self.rep+other.rep)
+            return self.__class__(self.val+other.val)
             
         def __sub__(self,other):
             super().__sub__(other)
-            return self.__class__(self.rep-other.rep)
+            return self.__class__(self.val-other.val)
         
         def __mul__(self,other):
             super().__mul__(other)
-            return self.__class__(self.rep*other.rep)
+            return self.__class__(self.val*other.val)
         
         def __eq__(self,other):
             if not super().__eq__(other):
                 return False
-            return self.ring.ideal.has(self.rep-other.rep)
+            return self.ring.ideal.has(self.val-other.val)
             
         def __str__(self):
-            return "["+str(self.rep)+"]"
+            return "["+str(self.val)+"]"
             
         def __neg__(self):
-            return self.__class__(-self.rep)
+            return self.__class__(-self.val)
 
         def reduce_rep(self):
             raise NotImplementedError()
@@ -154,7 +158,7 @@ class FieldQuotient(BaseQuotient, Field):
             return self._inverse()
 
         def _inverse(self):
-            gcd, inv, _ = eea(self.rep,self.ring.ideal.generator)
+            gcd, inv, _ = eea(self.val,self.ring.ideal.generator)
             return self.__class__(inv)
 
         def __truediv__(self, other):
