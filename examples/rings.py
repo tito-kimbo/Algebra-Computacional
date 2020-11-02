@@ -33,7 +33,7 @@ class Z(EuclideanDomain):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val-other.val)
         
-        def __mul__(self,other):
+        def inner_mul(self,other):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val*other.val)
         

@@ -22,10 +22,20 @@ class Ring(ABC):
             pass
 
         @abstractmethod
-        def __mul__(self,other):
-            assuming(self.ring == other.ring,
-                    "You can only multiply elements of the same ring")
+        def inner_mul(self, other):
+            """ Multiplication of ring elements """
             pass
+
+        def __mul__(self,other):
+            if type(other) == int:
+                return repeated_addition(self, other)
+            else:
+                return self.inner_mul(other)
+            pass
+
+        def __rmul__(self, other):
+            return self.__mul__(other)
+
 
         @abstractmethod
         def __eq__(self,other):
@@ -128,3 +138,17 @@ class EuclideanDomain(IntegralDomain):
     @abstractmethod
     def phi(self,element):
         pass
+
+
+def repeated_addition(element: Ring.Element, n: int):
+    """ Computes a+a+a+a... (n times) in O(log(n)) time """
+
+    res = element.ring.zero
+    acc = element
+    while n > 0:
+        if n % 2 == 1:
+            res += acc
+        n //= 2
+        acc = acc+acc
+
+    return res

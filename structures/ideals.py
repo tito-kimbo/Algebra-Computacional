@@ -127,8 +127,7 @@ class RingQuotient(BaseQuotient, Ring):
             super().__sub__(other)
             return self.__class__(self.val-other.val)
         
-        def __mul__(self,other):
-            super().__mul__(other)
+        def inner_mul(self,other):
             return self.__class__(self.val*other.val)
         
         def __eq__(self,other):
