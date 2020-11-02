@@ -7,29 +7,29 @@ class Ring(ABC):
     class Element(ABC): 
         """Class representing an element of the ring."""
 
-        ring = None     # See Ring.__new__
+        ring = None
 
         @abstractmethod
         def __add__(self,other):
-            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
+            assuming(self.ring == other.ring,
                     "You can only add elements of the same ring")
             pass
 
         @abstractmethod
         def __sub__(self,other):
-            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
+            assuming(self.ring == other.ring,
                     "You can only substract elements of the same ring")
             pass
 
         @abstractmethod
         def __mul__(self,other):
-            assuming(isinstance(other, self.ring.Element) and self.ring == other.ring,
+            assuming(self.ring == other.ring,
                     "You can only multiply elements of the same ring")
             pass
 
         @abstractmethod
         def __eq__(self,other):
-            return isinstance(other, self.__class__) and self.ring == other.ring
+            pass
             
         @abstractmethod
         def __str__(self):
@@ -62,7 +62,7 @@ class Ring(ABC):
         super().__init__(**kw)
     
     def build(self,*args,**kwargs):
-        return self.Element(*args,**kwargs)
+        return self.Element(*args, **kwargs)
 
     @abstractmethod
     def __eq__(self, other):
@@ -75,6 +75,25 @@ class Ring(ABC):
     def __repr__(self):
         return self.__str__()
 
+    # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
+    def __truediv__(self, other):
+        from structures.ideals import GetQuotient
+        return GetQuotient(self, other)
+
+    # Adds support for 6*Z
+    def __mul__(self, other):
+        assuming(other.ring == self, f"Can't generate ideal from {other} in {self}")
+        from structures.ideals import GetIdeal
+        return GetIdeal([other])
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+    
+    def is_integral(self):
+        return False
+
+    def is_euclidean(self):
+        return False
 
 class IntegralDomain(Ring):
     """Class representing an integral domain."""
@@ -95,10 +114,16 @@ class IntegralDomain(Ring):
         @abstractmethod
         def is_prime(self):
             pass
-    
+
+    def is_integral(self):
+        return True
+
     
 class EuclideanDomain(IntegralDomain):
     """Structure representing an euclidean domain."""
+
+    def is_euclidean(self):
+        return True
     
     @abstractmethod
     def phi(self,element):
