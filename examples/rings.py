@@ -1,5 +1,4 @@
 from structures.rings import EuclideanDomain
-from structures.ideals import EDIdeal
 from math import floor, sqrt
 from utils import assuming
 
@@ -21,7 +20,8 @@ class Z(EuclideanDomain):
     
     class Element(EuclideanDomain.Element):
     
-        def __init__(self,val):
+        def __init__(self,val, *args, **kw):
+            super().__init__(*args, **kw)
             _op_typecheck(val,allowed=[int])
             self.val=val
         
@@ -33,7 +33,7 @@ class Z(EuclideanDomain):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val-other.val)
         
-        def __mul__(self,other):
+        def inner_mul(self,other):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val*other.val)
         
@@ -63,7 +63,7 @@ class Z(EuclideanDomain):
             return self.val > 1
             
     def __init__(self):
-        super().__init__(self.Element(0),self.Element(1))
+        super().__init__(self.build(0),self.build(1))
     
     def phi(self,element):
         if type(element) is not self.Element:
@@ -77,13 +77,8 @@ class Z(EuclideanDomain):
         return "\N{DOUBLE-STRUCK CAPITAL Z}"
 
     def __mul__(self, other):
-        if isinstance(other, int):
-            other = self.build(other)
-        assuming(isinstance(other, self.Element) and other.ring == self, f"Can't multiply {self} and {other}")
-        return EDIdeal(self, [other])
-
-    def __rmul__(self, other):
-        return self.__mul__(other)
+        if type(other) == int:
+            return super().__mul__(self.build(other))
 
 
 Z = Z()

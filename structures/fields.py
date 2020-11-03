@@ -13,6 +13,20 @@ class Field(EuclideanDomain):
         @abstractmethod
         def __truediv__(self,other):
             pass
+
+        def is_unit(self):
+            return True
         
     def phi(self,element):
         return 1;
+
+    def numphi(self, n):
+        return 0 if n <= 1 else self.char()
+
+    @abstractmethod
+    def is_finite(self):
+        pass
+
+    @abstractmethod
+    def char(self):
+        pass

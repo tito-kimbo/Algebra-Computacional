@@ -1,5 +1,5 @@
 from abc import ABC,abstractmethod
-from structures.rings import Ring, EuclideanDomain
+from structures.rings import Ring
 from structures.fields import Field
 from algorithms.divisibility import gcd, eea
 from utils import assuming
@@ -7,18 +7,13 @@ from functools import reduce
 
 class Ideal(ABC):
     """Class representing an ideal over a ring."""
-    def __init__(self,ring,generators):
-        assuming(isinstance(ring, Ring),"ring must be a Ring")
 
-        for g in generators:
-            assuming(isinstance(g, ring.Element))
-
-        self.ring = ring
+    def __init__(self,generators: Ring.Element):
+        self.ring = generators[0].ring
         self.generators = generators
 
     def __eq__(self,other):
         if isinstance(other, Ideal):
-            # Better way?
             return self.ring == self.ring and self.generators == other.generators
         else:
             return False
@@ -35,10 +30,6 @@ class Ideal(ABC):
     def is_maximal(self):
         pass
 
-    # Adds support for stuff like Z/NZ(5) instead of Quotient(Z, NZ(5))
-    def __rtruediv__(self, other):
-        return Quotient(other, self)
-
     def __str__(self):
         insides = ','.join(map(str, self.generators))
         return f"({insides})"
@@ -50,18 +41,19 @@ class Ideal(ABC):
 class EDIdeal(Ideal):
     """ Ideal of an EuclideanDomain """
 
-    def __init__(self,ring, generators):
-        assuming(isinstance(ring, EuclideanDomain),"ring must be an EuclideanDomain")
+    def __init__(self, generators):
 
-        for g in generators:
-            assuming(isinstance(g, ring.Element))
+        assuming(len(generators) > 0, "At least one generator is needed")
+        assuming(generators[0].ring.is_euclidean(), "Ring must be Euclidean")
+
+        # We can calculate the generator as the gcd of all the given elements
 
         if len(generators) > 1:
-            self.generator = gdc(generators)
+            self.generator = gcd(generators)
         else:
             self.generator = generators[0]
 
-        super().__init__(ring, [self.generator])
+        super().__init__([self.generator])
 
 
     def has(self,element):
@@ -80,9 +72,20 @@ class EDIdeal(Ideal):
         return f"{self.generator}{self.ring}"
 
 
+def GetIdeal(generators):
+    g = generators[0]
+    if g.ring.is_euclidean():
+        return EDIdeal(generators)
+    else:
+        return Ideal(generators)
+
+
+
 class BaseQuotient(ABC):
+
+    """ Abstract superclass for quotients """
     
-    def __init__(self, ring, ideal, **kw):
+    def __init__(self, ring: Ring, ideal: Ideal, **kw):
         self.ring = ring
         self.ideal = ideal
         super().__init__(**kw)
@@ -93,11 +96,11 @@ class BaseQuotient(ABC):
         else:
             return False
 
-    def build(self, *args, rep=None, **kwargs):
+    def build(self, *args, rep: Ring.Element = None, **kwargs):
         if rep is not None:
-            return self.Element(rep)
+            return super().build(rep)
         else:
-            return self.Element(self.ring.build(*args, **kwargs))
+            return super().build(self.ring.build(*args, **kwargs))
 
     def __str__(self):
         return f"{self.ring}/{self.ideal}"
@@ -105,11 +108,13 @@ class BaseQuotient(ABC):
 
 class RingQuotient(BaseQuotient, Ring):
 
+    """ A quotient which has a ring structure """
+
     class Element(Ring.Element): 
         """Class representing an element of the ring."""
         
-        def __init__(self,rep):
-            assuming(isinstance(rep,Ring.Element),
+        def __init__(self, rep: Ring.Element):
+            assuming(rep.ring == self.ring.ring,
                     f"rep must be a ring element")
 
             self.val = rep
@@ -122,42 +127,47 @@ class RingQuotient(BaseQuotient, Ring):
             super().__sub__(other)
             return self.__class__(self.val-other.val)
         
-        def __mul__(self,other):
-            super().__mul__(other)
+        def inner_mul(self,other):
             return self.__class__(self.val*other.val)
         
         def __eq__(self,other):
-            if not super().__eq__(other):
-                return False
-            return self.ring.ideal.has(self.val-other.val)
+            return isinstance(other, Ring.Element) and other.ring == self.ring and self.ring.ideal.has(self.val-other.val)
             
         def __str__(self):
-            return "["+str(self.val)+"]"
+            return f"[{self.val}]"
             
         def __neg__(self):
             return self.__class__(-self.val)
 
         def reduce_rep(self):
+            """ Computes the minimum positive representation of this class """
+            raise NotImplementedError()
+
+        def is_unit(self):
             raise NotImplementedError()
     
-    def __init__(self,ring,ideal,**kw):
 
-        assuming(isinstance(ring,Ring), "ring must be a Ring")
-        assuming(isinstance(ideal,Ideal), "ideal must be an Ideal")
-        
+    def __init__(self, ring: Ring, ideal: Ideal, **kw):
+
+        self.ring = ring
         super().__init__(ring=ring, ideal=ideal, zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
 
 
+
 class FieldQuotient(BaseQuotient, Field):
+    """ A quotient which has a field structure """
 
     class Element(RingQuotient.Element, Field.Element):
+
+        def __init__(self, rep: Ring.Element):
+            if rep.ring.is_euclidean():
+                rep = self.reduce_rep(rep)
+            super().__init__(rep=rep)
         
         def inverse(self):
+            assuming(self.ring.is_euclidean(), "Can't calculate modular inverse in non-euclidean domain")
             if self == self.ring.zero:
                 raise ValueError(f"{self} does not have an inverse")
-            return self._inverse()
-
-        def _inverse(self):
             gcd, inv, _ = eea(self.val,self.ring.ideal.generator)
             return self.__class__(inv)
 
@@ -173,23 +183,40 @@ class FieldQuotient(BaseQuotient, Field):
             super().__mod__(other)
             return self.ring.zero
 
+        def reduce_rep(self, rep):
+            assuming(rep.ring.is_euclidean(), "Can't compute reduced rep in non-euclidean domain")
+            return rep % self.ring.ideal.generator
+
         def is_prime(self):
             raise NotImplementedError()
 
 
-    def __init__(self,ring,ideal,_inverse=None,**kw):
+    def is_finite(self):
+        # TODO: This is not true in general
+        return True
 
-        assuming(ideal.is_maximal, "ideal must be maximal")
-        
-        if _inverse is not None:
-            self.Element._inverse = _inverse
+    def char(self):
+        R = self.ring
+        n = R.numphi(R.phi(self.ideal.generator))
+        if n > 0:
+            return n
+        else:
+            return 0
 
-        super().__init__(ring=ring, ideal=ideal, zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
+
+    def __init__(self,ring: Ring,ideal: Ideal,**kw):
+
+        assuming(ideal.is_maximal(), "ideal must be maximal")
+
+        self.ring = ring
+        self.ideal = ideal
+        super(Field, self).__init__(zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
 
 
 
-def Quotient(ring, ideal):
-    if isinstance(ring, EuclideanDomain) and ideal.is_maximal():
+def GetQuotient(ring, ideal):
+    if ring.is_euclidean() and ideal.is_maximal():
         return FieldQuotient(ring, ideal)
     else:
         return RingQuotient(ring, ideal)
+
