@@ -61,6 +61,9 @@ class Z(EuclideanDomain):
                     return False
             # TODO negative values??
             return self.val > 1
+
+        def is_unit(self):
+            return self.val == 1 or self.val == -1
             
     def __init__(self):
         super().__init__(self.build(0),self.build(1))
@@ -69,6 +72,9 @@ class Z(EuclideanDomain):
         if type(element) is not self.Element:
             raise TypeError("Phi can only be applied to elements of the ring")
         return abs(element.val)
+
+    def numphi(self, n):
+        return n
 
     def __eq__(self, other):
         return other.__class__ == self.__class__

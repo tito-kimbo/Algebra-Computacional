@@ -11,31 +11,36 @@ Below are some examples of common operations.
 ```python
 >>> from examples.rings import Z
 >>> Z.one
-<abc.examples.rings.Z.Element object at 0x7f862aadeaf0>
->>> print(Z.one)
 1
->>> print(Z.build(128))
+>>> Z.one == 1
+False
+>>> Z.build(128)
 128
 >>> i128 = Z.build(128); i32 = Z.build(32)
->>> print(i128+i32)
+>>> i128+i32
 160
->>> print(i128*i32)
+>>> i128*i32
 4096
->>> print(i128//i32)
+>>> i128//i32
 4
+>>> 32 * Z.one == i32
+True
+>>> i16 = Z.build(16); i256 = Z.build(256)
+>>> i16 ** 2 == i256
+True
 ```
 
 ### Quotients
 
 ```python
 >>> Z4 = Z/(4*Z)
->>> print(Z4)
+>>> Z4
 ℤ/4ℤ
 >>> q2 = Z4.build(2)
 >>> q6 = Z4.build(6)
 >>> q2 == q6
 True
->>> print(q2 + q6)
+>>> q2 + q6
 [8]
 >>> q2 + q6 == Z4.zero
 True
