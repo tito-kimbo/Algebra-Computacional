@@ -1,4 +1,5 @@
 from structures.rings import Ring, IntegralDomain, EuclideanDomain
+from structures.fields import Field
 from itertools import zip_longest
 from algorithms.divisibility import gcd
 from utils import assuming
@@ -196,3 +197,9 @@ def rabin_test(pol):
             return False
 
     return True
+
+def GetPolynomials(ring):
+    if isinstance(ring, Field):
+        return PolynomialED(ring)
+    else:
+        return PolynomialRing(ring)
