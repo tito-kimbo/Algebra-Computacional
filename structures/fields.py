@@ -26,7 +26,3 @@ class Field(EuclideanDomain):
     @abstractmethod
     def is_finite(self):
         pass
-
-    @abstractmethod
-    def char(self):
-        pass

@@ -81,6 +81,12 @@ class PolynomialRing(Ring):
             return False
         return self.ring == other.ring
 
+    def char(self):
+        return self.ring.char()
+
+    def order(self):
+        return -1
+
 
     def __init__(self,ring: Ring,**kw):
             
@@ -134,8 +140,8 @@ class PolynomialED(PolynomialRing, EuclideanDomain):
     def phi(self, element):
         return element.deg()
 
-    def numphi(self, element):
-        return element.deg()*self.ring.char()
+    def numphi(self, n: int):
+        return self.ring.char() ** n
 
 
 

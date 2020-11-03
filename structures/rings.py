@@ -29,6 +29,8 @@ class Ring(ABC):
         def __mul__(self,other):
             if type(other) == int:
                 return repeated_addition(self, other)
+            elif isinstance(other,Ring):
+                return other.__mul__(self)
             else:
                 return self.inner_mul(other)
             pass
@@ -111,6 +113,14 @@ class Ring(ABC):
 
     def is_euclidean(self):
         return False
+
+    @abstractmethod
+    def char(self):
+        pass
+
+    @abstractmethod
+    def order(self):
+        pass
 
 class IntegralDomain(Ring):
     """Class representing an integral domain."""

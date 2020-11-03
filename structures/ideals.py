@@ -106,6 +106,29 @@ class BaseQuotient(ABC):
         return f"{self.ring}/{self.ideal}"
 
 
+    def char(self):
+        if "_char" in self.__dict__:
+            return self._char
+
+        c = 1
+        acc = self.one
+        while c < 1000 * 1000:
+            if acc == self.zero:
+                self._char = c
+                return c
+            acc = acc + self.one
+            c += 1
+
+    def order(self):
+        R = self.ring
+        n = R.numphi(R.phi(self.ideal.generator))
+        if n > 0:
+            return n
+        else:
+            return 0
+
+
+
 class RingQuotient(BaseQuotient, Ring):
 
     """ A quotient which has a ring structure """
@@ -194,14 +217,6 @@ class FieldQuotient(BaseQuotient, Field):
     def is_finite(self):
         # TODO: This is not true in general
         return True
-
-    def char(self):
-        R = self.ring
-        n = R.numphi(R.phi(self.ideal.generator))
-        if n > 0:
-            return n
-        else:
-            return 0
 
 
     def __init__(self,ring: Ring,ideal: Ideal,**kw):

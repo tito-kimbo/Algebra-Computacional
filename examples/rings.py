@@ -86,5 +86,11 @@ class Z(EuclideanDomain):
         if type(other) == int:
             return super().__mul__(self.build(other))
 
+    def char(self):
+        return 0
+
+    def order(self):
+        return -1
+
 
 Z = Z()

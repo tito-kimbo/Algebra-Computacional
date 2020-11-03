@@ -33,6 +33,7 @@ True
 ### Quotients
 
 ```python
+>>> from examples.rings import Z
 >>> Z4 = Z/(4*Z)
 >>> Z4
 ℤ/4ℤ
@@ -61,7 +62,71 @@ True
 
 ### Polynomials
 
-TODO
+```python
+>>> from examples.rings import Z
+>>> from structures.polynomials import GetPolynomials
+>>> ZX = GetPolynomials(Z)
+>>> ZX.is_euclidean()
+False
+>>> Z5 = Z/(Z*5)
+>>> Z5X = GetPolynomials(Z5)
+>>> Z5X
+ℤ/5ℤ[X]
+>>> Z5X.is_euclidean()
+True
+>>> Z5X.one
+([1])
+>>> pol = Z5X.build([1,2,3])
+>>> pol
+([1] + [2]*X^1 + [3]*X^2)
+>>> pol ** 2
+([1] + [4]*X^1 + [0]*X^2 + [2]*X^3 + [4]*X^4)
+>>> pol ** 2 // pol
+([1] + [2]*X^1 + [3]*X^2)
+>>> pol ** 2 // pol == pol
+True
+>>> from algorithms.divisibility import gcd
+>>> p1 = Z5X.build([1,0,1])
+>>> p2 = Z5X.build([3,2,1,3])
+>>> g = gcd(p1,p2)
+>>> g
+([2] + [4]*X^1)
+>>> p1 % g
+(0)
+>>> p2 % g
+(0)
+>>>
+```
+
+### Finite fields
+
+```python
+>>> from examples.rings import Z
+>>> from structures.polynomials import GetPolynomials
+>>> Z7 = Z/(7*Z)
+>>> Z7X = GetPolynomials(Z7)
+>>> gen = Z7X.build([2,0,1])
+>>> gen.is_prime()
+True
+>>> ideal = gen * Z7X
+>>> ideal.is_maximal()
+True
+>>> F49 = Z7X / ideal
+>>> F49.char()
+7
+>>> F49.order()
+49
+>>> x = F49.build([0,1])
+>>> x
+[([0] + [1]*X^1)]
+>>> x**2
+[([5])]
+>>> x**3
+[([0] + [5]*X^1)]
+>>> min([i for i in range(1,49) if x**i == F49.one])
+12
+>>> # x tiene orden 12
+```
 
 ## Developing
 
