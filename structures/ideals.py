@@ -142,6 +142,9 @@ class RingQuotient(BaseQuotient, Ring):
         def reduce_rep(self):
             """ Computes the minimum positive representation of this class """
             raise NotImplementedError()
+
+        def is_unit(self):
+            raise NotImplementedError()
     
 
     def __init__(self, ring: Ring, ideal: Ideal, **kw):
@@ -186,6 +189,19 @@ class FieldQuotient(BaseQuotient, Field):
 
         def is_prime(self):
             raise NotImplementedError()
+
+
+    def is_finite(self):
+        # TODO: This is not true in general
+        return True
+
+    def char(self):
+        R = self.ring
+        n = R.numphi(R.phi(self.ideal.generator))
+        if n > 0:
+            return n
+        else:
+            return 0
 
 
     def __init__(self,ring: Ring,ideal: Ideal,**kw):

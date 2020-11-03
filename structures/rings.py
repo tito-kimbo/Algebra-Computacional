@@ -36,6 +36,13 @@ class Ring(ABC):
         def __rmul__(self, other):
             return self.__mul__(other)
 
+        def __pow__(self, other):
+            if type(other) == int:
+                return fast_exponentiation(self, other)
+
+        @abstractmethod
+        def is_unit(self):
+            pass
 
         @abstractmethod
         def __eq__(self,other):
@@ -139,6 +146,14 @@ class EuclideanDomain(IntegralDomain):
     def phi(self,element):
         pass
 
+    @abstractmethod
+    def numphi(self, n: int):
+        """ 
+            Returns the number of elements e such that phi(e) < n, or -1
+            if the number is infinite / unknown
+        """
+        pass
+
 
 def repeated_addition(element: Ring.Element, n: int):
     """ Computes a+a+a+a... (n times) in O(log(n)) time """
@@ -150,5 +165,20 @@ def repeated_addition(element: Ring.Element, n: int):
             res += acc
         n //= 2
         acc = acc+acc
+
+    return res
+
+def fast_exponentiation(element: Ring.Element, n: int):
+    """
+        Computes a^n in O(log(n)) time
+    """
+
+    res = element.ring.one
+    acc = element
+    while n > 0:
+        if n % 2 == 1:
+            res *= acc
+        n //= 2
+        acc = acc*acc
 
     return res

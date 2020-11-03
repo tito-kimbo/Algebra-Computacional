@@ -2,6 +2,7 @@ from structures.ideals import EDIdeal, FieldQuotient
 from structures.polynomials import PolynomialRing
 
 
+# WIP
 
 class FiniteField(FieldQuotient):
 
