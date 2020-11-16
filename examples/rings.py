@@ -82,10 +82,6 @@ class Z(EuclideanDomain):
     def __str__(self):
         return "\N{DOUBLE-STRUCK CAPITAL Z}"
 
-    def __mul__(self, other):
-        if type(other) == int:
-            return super().__mul__(self.build(other))
-
     def char(self):
         return 0
 
