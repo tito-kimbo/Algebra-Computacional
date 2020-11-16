@@ -15,7 +15,7 @@ class MockRing(Ring):
             pass
         def __sub__(self, other):
             pass
-        def __mul__(self, other):
+        def inner_mul(self, other):
             pass
         def __eq__(self, other):
             pass
@@ -23,7 +23,15 @@ class MockRing(Ring):
             pass
         def __neg__(self):
             pass
+        def is_unit(self):
+            return True
+        def is_prime(self):
+            return False
 
+    def char(self):
+        return 0
+    def order(self):
+        return 0
     def __eq__(self, other):
         pass
     def __str__(self):
@@ -76,6 +84,12 @@ class TestRing(TestCase):
         R = self.ring
         self.assertEqual(R.one - R.zero, R.one)
         self.assertEqual(R.build(*self.buildTwo) - R.one, R.one)
+
+    def testOuterMulCorrect(self):
+        R = self.ring
+        two = R.build(*self.buildTwo)
+        self.assertEqual(10*R.one, 5*two)
+        self.assertEqual(23*R.one, 11*two+R.one)
         
     def testMulCorrect(self):
         R = self.ring

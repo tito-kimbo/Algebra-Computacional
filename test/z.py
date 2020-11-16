@@ -38,3 +38,11 @@ class TestZModField(TestField):
     q = Z17.build(3)
     d = Z17.build(15)
     r = Z17.zero
+
+#class TestZX(TestRing):
+
+#    ring = PolynomialRing(Z)
+
+#    buildZero = [[0]]
+#    buildOne = [[1]]
+#    buildTwo = [[2]]
