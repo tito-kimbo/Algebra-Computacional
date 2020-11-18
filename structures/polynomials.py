@@ -69,6 +69,14 @@ class PolynomialRing(Ring):
             s += ")"
             return s
 
+        def der(self):
+            # derivative
+            new_coefs = []
+            for i,c in enumerate(self.coefs[1:]):
+                if c != self.ring.zero:
+                    new_coefs.append((i+1)*c)
+            return self.__class__(new_coefs)
+
         def is_unit(self):
             raise NotImplementedError()
         
