@@ -1,4 +1,5 @@
-from structures.rings import EuclideanDomain, IntegralDomain
+from structures.rings import EuclideanDomain, IntegralDomain, UniqueFactorizationDomain
+from functools import reduce
 
 
 def eea(f: IntegralDomain.Element, g: IntegralDomain.Element):
@@ -40,3 +41,28 @@ def gcd(f: IntegralDomain.Element, g: IntegralDomain.Element, *args):
     else:
         return r[-2]
 
+def gcd_dfu(*elems):
+    """
+        Greatest common divisor of a set of DFU elements
+    """
+
+    R = elems[0].ring
+    if not isinstance(R, UniqueFactorizationDomain):
+        raise ValueError("Arguments must be in UFD elements")
+
+    def common_factors(a,b):
+        common_keys = set(a.keys()).intersection(set(b.keys()))
+        res = dict()
+        for key in common_keys:
+            res[key] = min(a[key], b[key])
+        return res
+
+    def multiply_all_factors(f):
+        res = R.one
+        for k,v in f.items():
+            res *= k**v
+        return res
+
+    factors = reduce(common_factors, map(lambda x: x.factors(), elems))
+
+    return multiply_all_factors(factors)
