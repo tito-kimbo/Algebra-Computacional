@@ -54,11 +54,11 @@ class PolynomialRing(Ring):
             return self.__class__(aux)
 
         def __neg__(self):
-            return self.__class__(list(map(lambda x: x.opp, self.coefs)))
+            return self.__class__(list(map(lambda x: -x, self.coefs)))
 
                     
         def __eq__(self,other):
-            return self.ring == other.ring and self.coefs == other.coefs
+            return isinstance(other, Ring.Element) and self.ring == other.ring and self.coefs == other.coefs
         
         def __str__(self):
             if len(self.coefs) == 0:

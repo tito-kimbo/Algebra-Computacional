@@ -97,7 +97,7 @@ class TestRing(TestCase):
         self.assertEqual(R.build(*self.buildTwo) * R.one, R.build(*self.buildTwo))
 
     def testEqRandomObject(self):
-        self.assertFalse(self.ring.zero == self)
+        self.assertFalse(self.ring.zero == object)
 
     def testEqDifferentRing(self):
         self.assertFalse(self.ring.one == MockRing().one)

@@ -1,5 +1,7 @@
 from test.structures import TestRing, TestEuclideanDomain, TestField
+from test.polynomials import PolyTest
 from examples.rings import Z
+from structures.polynomials import GetPolynomials
 
 class TestZ(TestEuclideanDomain):
 
@@ -39,10 +41,11 @@ class TestZModField(TestField):
     d = Z17.build(15)
     r = Z17.zero
 
-#class TestZX(TestRing):
+class TestZX(PolyTest):
 
-#    ring = PolynomialRing(Z)
+    ring = GetPolynomials(Z)
 
-#    buildZero = [[0]]
-#    buildOne = [[1]]
-#    buildTwo = [[2]]
+    buildZero = [[0]]
+    buildOne = [[1]]
+    buildTwo = [[2]]
+    buildX = [[0,1]]

@@ -1,11 +1,11 @@
 from unittest import TestSuite, TextTestRunner, defaultTestLoader
-from test.z import TestZ, TestZModRing, TestZModField
+from test.z import TestZ, TestZModRing, TestZModField, TestZX
 import os
 
 
 def testAll():
     
-    test_cases = [TestZ, TestZModRing, TestZModField]
+    test_cases = [TestZ, TestZModRing, TestZModField, TestZX]
 
     suite = TestSuite()
     for case in test_cases:
