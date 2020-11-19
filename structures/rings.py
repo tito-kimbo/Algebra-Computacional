@@ -145,8 +145,17 @@ class IntegralDomain(Ring):
     def is_integral(self):
         return True
 
+
+class UniqueFactorizationDomain(IntegralDomain):
+
+    class Element(IntegralDomain.Element):
+
+        @abstractmethod
+        def factors(self):
+            pass
+
     
-class EuclideanDomain(IntegralDomain):
+class EuclideanDomain(UniqueFactorizationDomain):
     """Structure representing an euclidean domain."""
 
     def is_euclidean(self):

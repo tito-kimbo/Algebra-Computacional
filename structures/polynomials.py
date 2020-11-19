@@ -145,6 +145,9 @@ class PolynomialED(PolynomialRing, EuclideanDomain):
         def is_unit(self):
             return self.deg() == 0 and self != self.ring.zero
 
+        def factors(self):
+            raise NotImplementedError()
+
     def phi(self, element):
         return element.deg()
 

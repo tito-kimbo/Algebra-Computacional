@@ -64,6 +64,32 @@ class Z(EuclideanDomain):
 
         def is_unit(self):
             return self.val == 1 or self.val == -1
+
+        def factors(self):
+
+            def add(d,f):
+                if f in d:
+                    d[f] += 1
+                else:
+                    d[f] = 1
+
+            # Temporal
+            val = self.val
+            res = dict()
+            while(val > 1):
+                found = False
+                for i in range(2,floor(sqrt(val)) + 1):
+                    if val % i == 0:
+                        found = True
+                        add(res,i)
+                        val = val//i
+                        break
+                if not found:
+                    add(res,val)
+                    break
+            # TODO negative values??
+            return res
+
             
     def __init__(self):
         super().__init__(self.build(0),self.build(1))

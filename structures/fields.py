@@ -1,10 +1,10 @@
 from abc import ABC,abstractmethod
-from structures.rings import EuclideanDomain, IntegralDomain
+from structures.rings import EuclideanDomain
 
 class Field(EuclideanDomain):
     """Class representing a field."""
     
-    class Element(IntegralDomain.Element):
+    class Element(EuclideanDomain.Element):
         """Class representing an element of a field."""
         @abstractmethod
         def inverse(self):
@@ -16,6 +16,9 @@ class Field(EuclideanDomain):
 
         def is_unit(self):
             return True
+
+        def factors(self):
+            return [self]
         
     def phi(self,element):
         return 1;
