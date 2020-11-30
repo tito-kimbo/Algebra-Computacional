@@ -77,6 +77,10 @@ class PolynomialRing(Ring):
                     new_coefs.append((i+1)*c)
             return self.__class__(new_coefs)
 
+        def root(self, n):
+            """ nth root of self """
+            raise NotImplementedError()
+
         def is_unit(self):
             raise NotImplementedError()
         
