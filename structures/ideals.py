@@ -168,6 +168,9 @@ class RingQuotient(BaseQuotient, Ring):
 
         def is_unit(self):
             raise NotImplementedError()
+
+        def __lt__(self, other):
+            return self.reduce_rep(self.val) < other.reduce_rep(self.val)
     
 
     def __init__(self, ring: Ring, ideal: Ideal, **kw):
@@ -235,3 +238,9 @@ def GetQuotient(ring, ideal):
     else:
         return RingQuotient(ring, ideal)
 
+"""
+from examples.finite_fields import FiniteField
+F4 = FiniteField(2,[1,1,1])
+from structures.polynomials import GetPolynomials
+F4X = GetPolynomials(F4)
+"""

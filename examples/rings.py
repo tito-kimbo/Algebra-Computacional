@@ -54,6 +54,13 @@ class Z(EuclideanDomain):
         def __str__(self):
             return str(self.val)
 
+        def __hash__(self):
+            return hash(("Z", self.val))
+
+        def __lt__(self,other):
+            _op_typecheck(other,allowed=[Z.Element])
+            return self.val < other.val
+
         def is_prime(self):
             # Temporal
             for i in range(2,floor(sqrt(self.val)) + 1):

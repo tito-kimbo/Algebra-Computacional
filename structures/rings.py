@@ -61,8 +61,18 @@ class Ring(ABC):
         def __neg__(self):
             pass
 
-        def __repr__(self):
-            return self.__str__()
+        @abstractmethod
+        def __hash__(self):
+            pass
+
+        def __le__(self, other):
+            return self.__lt__(other) or self == other
+
+        def __gt__(self, other):
+            return not self.__le__(other)
+
+        def __ge__(self, other):
+            return not self.__lt__(other)
 
 
     def __new__(cls, *args, **kwargs): 
@@ -141,6 +151,21 @@ class IntegralDomain(Ring):
         @abstractmethod
         def is_prime(self):
             pass
+
+        def in_base(self, b):
+            """
+                returns the element expressed in base b
+            """
+
+            R = self.ring
+            x = self
+            res = []
+
+            while x != R.zero:
+                res.append(x % b)
+                x = x // b
+
+            return res[::-1]
 
     def is_integral(self):
         return True
