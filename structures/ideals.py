@@ -213,6 +213,34 @@ class FieldQuotient(BaseQuotient, Field):
             assuming(rep.ring.is_euclidean(), "Can't compute reduced rep in non-euclidean domain")
             return rep % self.ring.ideal.generator
 
+        def croot(self):
+            """
+                Computes the cth root of the element, where c is the characteristic
+                of the ring
+            """
+
+            if self == self.ring.zero:
+                return self
+
+            from algorithms.divisibility import eea
+            from algorithms.discrete_log import discrete_log
+            from examples.rings import Z
+            # Assumes generator is primitive
+            # Multiplicative ring order
+            if self.ring.char() == self.ring.order():
+                return self
+
+            o = self.ring.order() - 1
+            p = self.ring.char()
+            g = self.ring.build([0,1])
+            log = discrete_log(g, self)
+            assuming(log is not None, "The chosen field generator is not primitive")
+            # Find an integer x such that x*p = log (mod o)
+            _, __, inv = eea(Z.build(o),Z.build(p))
+            x = inv*Z.build(log) % Z.build(o)
+            return g**(x.val)
+
+
         def is_prime(self):
             raise NotImplementedError()
 

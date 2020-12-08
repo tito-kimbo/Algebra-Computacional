@@ -11,7 +11,7 @@ def squarefree_decomposition(f):
     def list_pow(d, p):
         # "Raises" a dict to a power as explained in Remark 2.3.8
         res = defaultdict(lambda: 1)
-        for k,val in d:
+        for k,val in d.items():
             res[k*p] = val
         return res
         
@@ -23,7 +23,7 @@ def squarefree_decomposition(f):
     p = R.char()
 
     if fp == R.zero:
-        g = fp.root(p)
+        g = f.croot()
         return list_pow(squarefree_decomposition(g), p)
 
     i = 0
@@ -40,7 +40,7 @@ def squarefree_decomposition(f):
     if gs[i] == R.one:
         return L
 
-    g = gs[i].root(p)
+    g = gs[i].croot()
 
     L2 = list_pow(squarefree_decomposition(g), p)
     result = dict()

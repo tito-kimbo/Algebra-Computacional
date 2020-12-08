@@ -1,4 +1,4 @@
-import numpy as np
+from math import ceil, sqrt
 
 def _incustom(elem, l):
     for i in range(len(l)):
@@ -12,7 +12,7 @@ def discrete_log(a,h):
     if a.ring != h.ring:
         raise ValueError('Both elements must belong to the same ring') 
     N = a.ring.order()-1 # Order of the multiplicative group
-    m = int(np.ceil(np.sqrt(N)))
+    m = int(ceil(sqrt(N)))
     # Defining a hash/ordering might make this quicker?
     alpha = [a**j for j in range(m)]
     # order of an element divides order of the (multiplicative) group

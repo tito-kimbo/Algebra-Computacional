@@ -77,9 +77,6 @@ class PolynomialRing(Ring):
                     new_coefs.append((i+1)*c)
             return self.__class__(new_coefs)
 
-        def root(self, n):
-            """ nth root of self """
-            raise NotImplementedError()
 
         def is_unit(self):
             raise NotImplementedError()
@@ -151,6 +148,20 @@ class PolynomialED(PolynomialRing, EuclideanDomain):
 
         def factors(self):
             raise NotImplementedError()
+
+        def croot(self):
+            """ cth root of the element, where c is the characteristic of the ring """
+            R = self.ring
+            p = R.char()
+            newc = []
+            k = 0
+
+            for i,c in enumerate(self.coefs):
+                if i == k*p:
+                    newc.append(c.croot())
+                    k += 1
+
+            return R.build(newc)
 
     def phi(self, element):
         return element.deg()

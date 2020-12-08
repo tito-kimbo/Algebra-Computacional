@@ -6,9 +6,14 @@ from examples.rings import Z
 class FiniteField(FieldQuotient):
 
     
-    def __init__(self, p, generator):
+    def __init__(self, p, pol):
         Pols = GetPolynomials(Z/(p*Z))
 
-        super().__init__(Pols, Pols*Pols.build(generator))
+        super().__init__(Pols, Pols*Pols.build(pol))
 
-    
+    def generator(self):
+        """
+            Returns the class x + <pol>, which is a generator of the field if pol is primitive
+        """
+
+        return self.build([0,1])
