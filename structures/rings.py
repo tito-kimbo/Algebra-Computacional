@@ -117,6 +117,11 @@ class Ring(ABC):
 
     def __rmul__(self, other):
         return self.__mul__(other)
+
+    # Adds support for Z['x']
+    def __getitem__(self, key):
+        from structures.polynomials import GetPolynomials
+        return GetPolynomials(self, key)
     
     def is_integral(self):
         return False

@@ -65,7 +65,7 @@ class PolynomialRing(Ring):
                 return "(0)"
             s = "(" + str(self.coefs[0])
             for i in range(1,self.deg()+1):
-                s += " + " + str(self.coefs[i]) + "*" + VARS[self.ring.chain] + "^" + str(i)
+                s += " + " + str(self.coefs[i]) + "*" + self.ring.var + "^" + str(i)
             s += ")"
             return s
 
@@ -83,7 +83,7 @@ class PolynomialRing(Ring):
         
 
     def __str__(self):
-        return f"{self.ring}[{VARS[self.chain]}]"
+        return f"{self.ring}[{self.var}]"
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -97,14 +97,19 @@ class PolynomialRing(Ring):
         return -1
 
 
-    def __init__(self,ring: Ring,**kw):
+    def __init__(self, ring: Ring, var, **kw):
             
+
         # For string conversion
         self.chain = 0
         if isinstance(ring,PolynomialRing):
             self.chain = ring.chain+1
         
-        chain = self.chain
+        if var is None:
+            self.var = VARS[self.chain]
+        else:
+            self.var = var
+
         self.ring = ring
 
         super().__init__(zero = self.Element([ring.zero]),one = self.Element([ring.one]))
@@ -230,8 +235,8 @@ def rabin_test(pol):
 
     return True
 
-def GetPolynomials(ring):
+def GetPolynomials(ring, var = None):
     if isinstance(ring, Field):
-        return PolynomialED(ring)
+        return PolynomialED(ring, var)
     else:
-        return PolynomialRing(ring)
+        return PolynomialRing(ring, var)
