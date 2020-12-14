@@ -64,12 +64,11 @@ True
 
 ```python
 >>> from examples.rings import Z
->>> from structures.polynomials import GetPolynomials
->>> ZX = GetPolynomials(Z)
+>>> ZX = Z["X"]
 >>> ZX.is_euclidean()
 False
 >>> Z5 = Z/(Z*5)
->>> Z5X = GetPolynomials(Z5)
+>>> Z5X = Z5["X"]
 >>> Z5X
 ℤ/5ℤ[X]
 >>> Z5X.is_euclidean()
@@ -101,31 +100,30 @@ True
 ### Finite fields
 
 ```python
->>> from examples.rings import Z
->>> from structures.polynomials import GetPolynomials
->>> Z7 = Z/(7*Z)
->>> Z7X = GetPolynomials(Z7)
->>> gen = Z7X.build([2,0,1])
->>> gen.is_prime()
-True
->>> ideal = gen * Z7X
->>> ideal.is_maximal()
-True
->>> F49 = Z7X / ideal
->>> F49.char()
-7
->>> F49.order()
-49
->>> x = F49.build([0,1])
->>> x
+>>> from examples.finite_fields import FiniteField
+>>> # The polynomial x^6 + x + 1 is primitive in Z2
+>>> F64 = FiniteField(2, [1,1,0,0,0,0,1])
+>>> alpha = F64.generator()
+>>> # if you chose a primitive polynomial to build the field
+>>> # then alpha is a generator
+>>> alpha
 [([0] + [1]*X^1)]
->>> x**2
-[([5])]
->>> x**3
-[([0] + [5]*X^1)]
->>> min([i for i in range(1,49) if x**i == F49.one])
-12
->>> # x tiene orden 12
+>>> alpha**17
+[([0] + [1]*X^1 + [1]*X^2 + [1]*X^5)]
+>>> # Let's test some polynomials
+>>> F64Y = F64["Y"]
+>>> pol = F64Y.build([F64.one, F64.zero, alpha**23, F64.one])
+>>> pol
+([([1])] + [([1] + [1]*X^3 + [1]*X^5)]*Y^2 + [([1])]*Y^3)
+>>> # Polynomials are hard to read, because the coefficients are complex
+>>> # We can change the representation of the coefficients in terms of the generator
+>>> F64.setRepr("alpha")
+>>> pol
+(1 + alpha**23*Y^2 + 1*Y^3)
+>>> F64.setRepr(None)
+>>> pol
+([([1])] + [([1] + [1]*X^3 + [1]*X^5)]*Y^2 + [([1])]*Y^3)
+>>>
 ```
 
 ## Developing
