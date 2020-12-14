@@ -51,3 +51,32 @@ def squarefree_decomposition(f):
             res[k] = val
 
     return result
+
+
+def distinct_degree_decomposition(f):
+    """
+        f must be a squarefree polynomial in Fq[x]
+    """
+    
+    R = f.ring
+    CoefR = R.ring      # coefficient ring
+
+    result = defaultdict(lambda: R.one)
+    q = R.order()
+    d = 0
+    g = [f]
+    x = R.build([CoefR.zero, CoefR.one])
+    h = [x]
+
+    while d <= g[-1].deg()/2 - 1:
+        d += 1
+        h.append(h[-1]**q % g[-1])
+        fact = gcd(g[-1], h[-1] - x)
+        if fact != R.one:
+            result[d] = fact
+        g.append(g[-1] // fact)
+
+    if g[-1] != R.one:
+        result[g[-1].deg()] = g[-1]
+
+    return result
