@@ -62,21 +62,21 @@ def distinct_degree_decomposition(f):
     CoefR = R.ring      # coefficient ring
 
     result = defaultdict(lambda: R.one)
-    q = R.order()
+    q = CoefR.order()
     d = 0
     g = [f]
     x = R.build([CoefR.zero, CoefR.one])
     h = [x]
 
-    while d <= g[-1].deg()/2 - 1:
+    while d <= g[d].deg()/2 - 1:
         d += 1
-        h.append(h[-1]**q % g[-1])
-        fact = gcd(g[-1], h[-1] - x)
+        h.append(h[d-1]**q % g[d-1])
+        fact = gcd(g[d-1], h[d] - x)
         if fact != R.one:
             result[d] = fact
-        g.append(g[-1] // fact)
+        g.append(g[d-1] // fact)
 
-    if g[-1] != R.one:
-        result[g[-1].deg()] = g[-1]
+    if g[d] != R.one:
+        result[g[d].deg()] = g[d]
 
     return result
