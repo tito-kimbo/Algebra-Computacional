@@ -65,7 +65,8 @@ class PolynomialRing(Ring):
                 return "(0)"
             s = "(" + str(self.coefs[0])
             for i in range(1,self.deg()+1):
-                s += " + " + str(self.coefs[i]) + "*" + self.ring.var + "^" + str(i)
+                if self.coefs[i] != self.ring.ring.zero:
+                    s += " + " + str(self.coefs[i]) + "*" + self.ring.var + "^" + str(i)
             s += ")"
             return s
 
