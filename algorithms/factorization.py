@@ -53,7 +53,7 @@ def squarefree_decomposition(f):
     return result
 
 
-def distinct_degree_decomposition(f):
+def distinct_degree_factorization(f):
     """
         f must be a squarefree polynomial in Fq[x]
     """
