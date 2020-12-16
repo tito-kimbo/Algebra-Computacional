@@ -257,7 +257,7 @@ def rabin_test(pol):
     R = PR.ring         # underlying ring (field)
     assuming(R.is_finite())
 
-    p = R.char()
+    p = R.order()
     n = pol.deg()
 
     x = PR.build([R.zero,R.one])

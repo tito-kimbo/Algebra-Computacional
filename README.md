@@ -126,6 +126,28 @@ True
 >>>
 ```
 
+### Example: polynomial factorization in finite field
+
+```python
+>>> from examples.finite_fields import FiniteField
+>>> from algorithms.factorization import *
+>>> F9 = FiniteField(3, [2,2,1], "a")
+>>> F9X = F9["x"]
+>>> f = F9X.build([-F9.generator(), F9.one, F9.one, F9.one])
+>>> f
+2a¹ + x¹ + x² + x³
+>>> # We want to find the irreducible factors of f
+>>> factors = berlekamp_factorization(f)
+>>> factors
+[2 + (1 + 2a¹)x¹ + x², a¹ + x¹]
+>>> # Let's test that this is indeed a factorization
+>>> all([x.is_prime() for x in factors])
+True
+>>> factors[0] * factors[1]
+2a¹ + x¹ + x² + x³
+>>> 
+```
+
 ## Developing
 
 Read our CONTRIBUTING guide for a description of the class hierarchy and recommended practices

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from algorithms.divisibility import gcd
+import random
 
 
 
@@ -134,6 +135,26 @@ def ker_phi_basis(f):
     zeros = [i for i in range(d) if M[i] == [R.zero]*d]
     return [RX.build(B[i]) for i in zeros]
 
+
+def berlekamp_factorization(f):
+    basis = ker_phi_basis(f)
+
+    s = len(basis)
+    # TODO Better to use sets, but hash needed
+    factors = [f]
+    irred = []
+    
+    while len(factors) + len(irred) < s:
+        g = random.choice(factors)
+        h = berlekamp_splitting(g, basis)
+        factors.remove(g)
+        if g != h:
+            factors.append(h)
+            factors.append(g // h)
+        else:
+            irred.append(g)   
+
+    return factors + irred
 
 def _gaussian_elimination(B, M, R):
     """
