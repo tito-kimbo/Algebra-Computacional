@@ -25,6 +25,12 @@ def eea(f: IntegralDomain.Element, g: IntegralDomain.Element):
         t.append(t[-2] - q*t[-1])
 
 
+    if r[-2].is_unit():
+        q = R.one // r[-2]
+        r[-2] = r[-2] * q
+        s[-2] = s[-2] * q
+        t[-2] = t[-2] * q
+
     return (r[-2], s[-2], t[-2])
 
 def gcd(f: IntegralDomain.Element, g: IntegralDomain.Element, *args):
@@ -35,6 +41,10 @@ def gcd(f: IntegralDomain.Element, g: IntegralDomain.Element, *args):
     r = [f,g]
     while r[-1] != R.zero:
         r.append(r[-2] % r[-1])
+
+
+    if r[-2].is_unit():
+        return R.one
 
     if len(args) > 0:
         return gcd(r[-2], *args)
