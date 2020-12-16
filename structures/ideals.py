@@ -84,7 +84,7 @@ def GetIdeal(generators):
 class BaseQuotient(ABC):
 
     """ Abstract superclass for quotients """
-    
+
     def __init__(self, ring: Ring, ideal: Ideal, **kw):
         self.ring = ring
         self.ideal = ideal
@@ -128,7 +128,6 @@ class BaseQuotient(ABC):
             return 0
 
 
-
 class RingQuotient(BaseQuotient, Ring):
 
     """ A quotient which has a ring structure """
@@ -157,7 +156,10 @@ class RingQuotient(BaseQuotient, Ring):
             return isinstance(other, Ring.Element) and other.ring == self.ring and self.ring.ideal.has(self.val-other.val)
             
         def __str__(self):
-            return f"[{self.val}]"
+            if self.ring.repr == "reduced":
+                return str(self.val)
+            else:
+                return f"[{self.val}]"
             
         def __neg__(self):
             return self.__class__(-self.val)
@@ -172,6 +174,10 @@ class RingQuotient(BaseQuotient, Ring):
         def __lt__(self, other):
             return self.reduce_rep(self.val) < other.reduce_rep(self.val)
     
+    repr = None
+
+    def setRepr(self, rep):
+        self.repr = rep
 
     def __init__(self, ring: Ring, ideal: Ideal, **kw):
 

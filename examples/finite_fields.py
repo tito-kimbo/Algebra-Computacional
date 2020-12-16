@@ -6,12 +6,12 @@ from algorithms.discrete_log import discrete_log
 
 class FiniteField(FieldQuotient):
 
-    repr = None
-
     class Element(FieldQuotient.Element):
 
         def __str__(self):
-            if self.ring.repr != None:
+            if self.ring.repr == "reduced":
+                return super().__str__()
+            elif self.ring.repr != None:
                 if self == self.ring.zero:
                     return "0"
                 if self == self.ring.one:
@@ -22,13 +22,19 @@ class FiniteField(FieldQuotient):
             else:
                 return super().__str__()
     
-    def __init__(self, p, pol):
-        Pols = GetPolynomials(Z/(p*Z))
+    def __init__(self, p, pol = None, var = None):
+        if pol is None:
+            super().__init__(Z, Z*p)
+        else:
+            Pols = GetPolynomials(Z/(p*Z), var)
+            super().__init__(Pols, Pols*Pols.build(pol))
+        self.setRepr("reduced")
 
-        super().__init__(Pols, Pols*Pols.build(pol))
-
+    repr = None
     def setRepr(self, rep):
         self.repr = rep
+        if rep == "reduced":
+            self.ring.setRepr(rep)
 
     def generator(self):
         """

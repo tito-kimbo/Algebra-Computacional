@@ -137,6 +137,10 @@ class Ring(ABC):
     def order(self):
         pass
 
+    repr = None
+    def setRepr(self, rep):
+        self.repr = rep
+
 class IntegralDomain(Ring):
     """Class representing an integral domain."""
 
