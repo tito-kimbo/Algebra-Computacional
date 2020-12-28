@@ -2,6 +2,7 @@ from algorithms.divisibility import gcd
 from algorithms.discrete_log import discrete_log
 from examples.rings import *
 from utils import *
+from random import randint
 import math
 
 
@@ -61,4 +62,42 @@ def is_prime_aks(n):
         M = R.build([1,0])**n-R.build([1]) # x^r-1
         if P1 % M != P2:
             return False
+    return True
+    
+
+"""
+Returns True if it is a possible prime and False otherwise.
+
+:n  the input number, larger than 1
+:k  the number of tests to run
+"""                                                     
+def is_prime_miller_rabin(n,k=500):
+    if type(n) == int:
+        n = Z.build(n)
+    
+    if n.val < 2:
+        raise ValueError("Input integer must be larger than 2.")
+    if n.val == 2 or n.val == 3:
+        return True
+    if n.val % 2 == 0:
+        return False
+        
+    # Factor the integer as 2^r*d+1
+    r,d = 0,n.val-1
+    while d % 2 == 0:
+        r,d = r+1,d//2
+    # Run test k times
+    R = Z/(Z*n)
+    one,minus_one = R.build(1),R.build(n.val-1)
+    for _ in range(k):
+        # Miller Test
+        a = R.build(randint(2,n.val-2))**d
+        if a != one and a != minus_one:
+            witness,i = True,0
+            while witness and i<r-1:
+                a,i = a*a,i+1
+                if a == minus_one:
+                    witness = False
+            if witness:
+                return False        
     return True
