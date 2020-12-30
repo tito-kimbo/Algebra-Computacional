@@ -43,13 +43,23 @@ class Z(EuclideanDomain):
         def __floordiv__(self,other):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val//other.val)
-        
+
+        def __truediv__(self,other):
+            _op_typecheck(other,allowed=[Z.Element])
+            return Z.Element(self.val//other.val)
+
         def __mod__(self,other):
             _op_typecheck(other,allowed=[Z.Element])
             return Z.Element(self.val%other.val)
             
         def __neg__(self):
             return Z.Element(-self.val)
+
+        def normal(self):
+            if(self.val < 0):
+                return -self
+            else:
+                return self 
 
         def __str__(self):
             return str(self.val)
