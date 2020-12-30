@@ -74,6 +74,10 @@ class Ring(ABC):
         def __ge__(self, other):
             return not self.__lt__(other)
 
+        @abstractmethod
+        def normal(self):
+            pass
+
 
     def __new__(cls, *args, **kwargs): 
         # Decorates the Element class before construction of the ring

@@ -112,7 +112,26 @@ class PolynomialRing(Ring):
 
         def is_unit(self):
             raise NotImplementedError()
-        
+
+        def normal(self):
+            #First we take the normal form of the leading coefficient
+            nf = self.coefs[-1].normal()
+
+            #If both are the same, the polynomial is already in it's normal form
+            if nf == self.coefs[-1]:
+                return self
+            
+            else:
+                poly = self * self.ring.build([nf / self.coefs[-1]]) 
+                return poly
+
+        def content(self):
+            return gcd(*self.coefs)
+
+        def primitive_part(self):
+            cont = self.content()
+            cf = list(map(lambda x: x / self.content(), self.coefs))
+            return self.ring.build(cf)
 
     def __str__(self):
         return f"{self.ring}[{self.var}]"
@@ -231,7 +250,7 @@ def polynomial_division(a, b):
     ea = a.coefs[-1]
     cb = b.deg()-1
     eb = b.coefs[-1]
-    
+
     main_quot = a.__class__(([R.zero] * (ca-cb)) +  [ea / eb])
     reduced = a - b*main_quot
 
