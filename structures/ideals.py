@@ -138,7 +138,8 @@ class RingQuotient(BaseQuotient, Ring):
         def __init__(self, rep: Ring.Element):
             assuming(rep.ring == self.ring.ring,
                     f"rep must be a ring element")
-
+            if rep.ring.is_euclidean():
+                rep = self.reduce_rep(rep)
             self.val = rep
         
         def __add__(self,other):
@@ -164,9 +165,9 @@ class RingQuotient(BaseQuotient, Ring):
         def __neg__(self):
             return self.__class__(-self.val)
 
-        def reduce_rep(self):
-            """ Computes the minimum positive representation of this class """
-            raise NotImplementedError()
+        def reduce_rep(self, rep):
+            assuming(rep.ring.is_euclidean(), "Can't compute reduced rep in non-euclidean domain")
+            return rep % self.ring.ideal.generator
 
         def is_unit(self):
             raise NotImplementedError()
@@ -180,8 +181,8 @@ class RingQuotient(BaseQuotient, Ring):
         self.repr = rep
 
     def __init__(self, ring: Ring, ideal: Ideal, **kw):
-
         self.ring = ring
+        self.ideal = ideal
         super().__init__(ring=ring, ideal=ideal, zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
 
 

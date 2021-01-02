@@ -99,5 +99,5 @@ def is_prime_miller_rabin(n,k=500):
                 if a == minus_one:
                     witness = False
             if witness:
-                return False        
+                return False     
     return True
