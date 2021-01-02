@@ -6,7 +6,7 @@ def _incustom(elem, l):
             return True,i
     return False,-1
 
-""" Returns the discrete logarithm with base a of b using Shanks 
+""" Returns the discrete logarithm with base a of h using Shanks 
 algorithm (baby-step giant-step)."""
 def discrete_log(a,h):
     if a.ring != h.ring:
