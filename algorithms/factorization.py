@@ -88,17 +88,25 @@ def berlekamp_splitting(f, hs):
         f must be squarefree and monic
         hs must be a basis of ker(phi_f))
     """
+    # Implements algorithm 2.3.21
 
+    # R = ring of coefficients, RX = polynomial ring
     R = f.ring.ring
     RX = f.ring
 
+    # s is the dim of Ker(phi) and must be
+    # the number of factors, per Lemma 2.3.19
     s = len(hs)
     if s == 1:
         return f
 
-    i = 1
+    
+    # Compute all elements of R = Fq.
     alpha = R.generator()
     R_elems = [R.zero] + [alpha**i for i in range(R.order()-1)]
+
+    # Loop through the basis and R_elems until we find a nontrivial factor
+    i = 1
     while i < s:
         for a in R_elems:
             g = gcd(f, hs[i]-RX.build([a]))
@@ -106,15 +114,21 @@ def berlekamp_splitting(f, hs):
                 return g
         i += 1
 
-    raise ValueError()
+    raise ValueError("You broke mathematics")
 
 def ker_phi_basis(f):
     """
         Computes a basis for Ker(Phi_f),
         where is the endomorphism (Fr - id)
-        in Fq / <f>
+        in Fq[x] / <f>
     """
 
+    # Implements Remark 2.3.22
+    # Computes the matrix of Phi_f and then applies
+    # gaussian elimination to find independent zeroes of Phi_f
+
+
+    # R = ring of coefficients, RX = polynomial ring
     R = f.ring.ring
     RX = f.ring
 
@@ -123,27 +137,45 @@ def ker_phi_basis(f):
 
     x = RX.build([R.zero,R.one])
 
+    # B is a basis of R, M is the matrix of Phi_f in that basis
+    # Initialize B as the standard basis and M accordingly
     B = [[R.zero]*i + [R.one] + [R.zero]*(d-1-i) for i in range(d)]
     M = [((x**(i*q) - x**i) % f).coefs for i in range(d)]
 
+    # M is build as a vector of polynomials, so we need
+    # to add leading zero coefficients if the degree is
+    # not high enough
     for i in range(d):
         if len(M[i]) < d:
             M[i] += [R.zero] * (d-len(M[i]))
 
+    # Modifies B and M in-place
     _gaussian_elimination(B,M,R)
 
+    # If M[i] = 0, then Phi_f(B[i]) = 0
     zeros = [i for i in range(d) if M[i] == [R.zero]*d]
     return [RX.build(B[i]) for i in zeros]
 
 
 def berlekamp_factorization(f):
+    """
+        Berlekamp factorization algorithm (BFA)
+    """
+    # Implements algorithm 2.3.24
+
+    # Compute a basis of Ker(Phi)
     basis = ker_phi_basis(f)
 
+    # s must be the number of factors
     s = len(basis)
+
+    # We will store found factors in factors,
+    # and irreducible ones in irred
     # TODO Better to use sets, but hash needed
     factors = [f]
     irred = []
     
+    # While we have less than s factors, attemp to reduce one in factors
     while len(factors) + len(irred) < s:
         g = random.choice(factors)
         h = berlekamp_splitting(g, basis)
@@ -152,9 +184,68 @@ def berlekamp_factorization(f):
             factors.append(h)
             factors.append(g // h)
         else:
+            # If the splitting found no nontrivial factors, g must be irreducible
             irred.append(g)   
 
     return factors + irred
+
+"""
+from examples.finite_fields import FiniteField
+from algorithms.factorization import *
+F9 = FiniteField(3, [2,2,1]) 
+a = F9.generator()
+F9X = F9["y"] 
+f = F9X.build([-a,F9.one,F9.one,F9.one])
+berlekamp_cantor_zassenhaus(f)
+
+"""
+
+def berlekamp_cantor_zassenhaus(f):
+    """
+        Berlekamp / Cantor / Zassenhaus factorization algorithm (BCZ)
+    """
+
+    # Implements Algorithm 2.3.25
+
+    # R = ring of coefficients, RX = polynomial ring
+    R = f.ring.ring
+    RX = f.ring
+
+    q = R.order()
+
+    # Compute a basis of Ker(Phi_f)
+    hs = ker_phi_basis(f)
+
+    # s must be the number of factors
+    s = len(hs)
+
+    # Store factors in result
+    result = [f]
+
+    alpha = R.generator()
+
+    # Look for factors until we have found all
+    while len(result) < s:
+        g = random.choice(result)
+        while g.deg() <= 1:
+            g = random.choice(result)
+
+        # Construct a random element of Ker(Phi)
+        cs = [alpha**random.randint(0,q) for i in range(s)]
+        h = sum([RX.build([a])*b for a,b in zip(cs,hs)], RX.zero)
+
+        w = gcd(g, h**((q-1)//2) - RX.one)
+
+        if w != RX.one and w != g:
+            # w is a nontrivial factor of g
+            result.remove(g)
+            result.append(w)
+            result.append(g//w)
+
+    return result
+
+
+
 
 def _gaussian_elimination(B, M, R):
     """
