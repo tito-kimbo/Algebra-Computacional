@@ -204,6 +204,7 @@ class FieldQuotient(BaseQuotient, Field):
             gcd, inv, _ = eea(self.val,self.ring.ideal.generator)
             return self.__class__(inv)
 
+
         def __truediv__(self, other):
             super().__truediv__(other)
             return self * other.inverse()
@@ -272,10 +273,3 @@ def GetQuotient(ring, ideal):
         return FieldQuotient(ring, ideal)
     else:
         return RingQuotient(ring, ideal)
-
-"""
-from examples.finite_fields import FiniteField
-F4 = FiniteField(2,[1,1,1])
-from structures.polynomials import GetPolynomials
-F4X = GetPolynomials(F4)
-"""

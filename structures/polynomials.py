@@ -2,6 +2,7 @@ from structures.rings import Ring, IntegralDomain, EuclideanDomain
 from structures.fields import Field
 from itertools import zip_longest
 from algorithms.divisibility import gcd
+from algorithms.primality import rabin_test
 from utils import assuming, print_superscript
 
 VARS = ["X","Y","Z","T","U","V"] # Could be extended arbitrarily with sub indexing
@@ -258,39 +259,6 @@ def polynomial_division(a, b):
     return (quot+main_quot, rem)
 
 
-def factorize(n: int):
-    # Crude factorization
-    # TODO replace by sieve
-    if n < 2:
-        return []
-    for i in range(2,n+1):
-        if n % i == 0:
-            return [i] + factorize(n//i)
-
-
-def rabin_test(pol):
-    """
-        Rabin's test of irreducibility for polynomials with coefficients in a finite field
-    """
-    PR = pol.ring       # polinomial ring
-    R = PR.ring         # underlying ring (field)
-    assuming(R.is_finite())
-
-    p = R.order()
-    n = pol.deg()
-
-    x = PR.build([R.zero,R.one])
-
-    if (x**(p**n)-x) % pol != PR.zero:
-        return False
-
-    factors = set(factorize(n))
-    for f in factors:
-        ni = n//f
-        if not gcd(pol, (x**(p**ni)-x)).is_unit():
-            return False
-
-    return True
 
 def GetPolynomials(ring, var = None):
     if isinstance(ring, Field):

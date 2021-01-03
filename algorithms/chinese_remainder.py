@@ -2,7 +2,6 @@ from structures.ideals import *
 from algorithms.divisibility import gcd, eea
 from functools import reduce
 
-# WIP
 def modinv(x,f):
     """Receives two elements of the same ring R and returns the inverse of x in R/<f>. <f> must be maximal.
        

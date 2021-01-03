@@ -1,6 +1,7 @@
 from collections import defaultdict
 from algorithms.divisibility import gcd
 import random
+from math import log2
 
 
 
@@ -189,16 +190,6 @@ def berlekamp_factorization(f):
 
     return factors + irred
 
-"""
-from examples.finite_fields import FiniteField
-from algorithms.factorization import *
-F9 = FiniteField(3, [2,2,1]) 
-a = F9.generator()
-F9X = F9["y"] 
-f = F9X.build([-a,F9.one,F9.one,F9.one])
-berlekamp_cantor_zassenhaus(f)
-
-"""
 
 def berlekamp_cantor_zassenhaus(f):
     """
@@ -212,6 +203,16 @@ def berlekamp_cantor_zassenhaus(f):
     RX = f.ring
 
     q = R.order()
+    
+    # There is one operation which is different in characteristic 2
+    if q % 2 == 0:
+        r = int(log2(q))
+        def op(x):
+            return sum([x**(2*i) for i in range(r-1)], x.ring.zero)
+    else:
+        def op(x):
+            return x**((q-1)//2) - x.ring.one
+
 
     # Compute a basis of Ker(Phi_f)
     hs = ker_phi_basis(f)
@@ -234,7 +235,7 @@ def berlekamp_cantor_zassenhaus(f):
         cs = [alpha**random.randint(0,q) for i in range(s)]
         h = sum([RX.build([a])*b for a,b in zip(cs,hs)], RX.zero)
 
-        w = gcd(g, h**((q-1)//2) - RX.one)
+        w = gcd(g, op(h))
 
         if w != RX.one and w != g:
             # w is a nontrivial factor of g
