@@ -2,7 +2,7 @@ from structures.rings import Ring, IntegralDomain, EuclideanDomain
 from structures.fields import Field
 from itertools import zip_longest
 from algorithms.divisibility import gcd
-from algorithms.primality import rabin_test
+from algorithms.irreducibility import rabin_test
 from utils import assuming, print_superscript
 
 VARS = ["X","Y","Z","T","U","V"] # Could be extended arbitrarily with sub indexing
@@ -57,49 +57,37 @@ class PolynomialRing(Ring):
         def __neg__(self):
             return self.__class__(list(map(lambda x: -x, self.coefs)))
 
+
+        def __floordiv__(self, other):
+            quot, rem = polynomial_division(self, other)
+            return quot
+
+        def __mod__(self, other):
+            quot, rem = polynomial_division(self, other)
+            return rem
+
                     
         def __eq__(self,other):
             return isinstance(other, Ring.Element) and self.ring == other.ring and self.coefs == other.coefs
         
         def __str__(self):
             if self.ring.repr == "reduced":
-                if len(self.coefs) == 0:
+
+                if self == self.ring.zero:
                     return "0"
 
-                total_s = []
+                reps = [f"{'' if a == a.ring.one and i > 0 else repr(a)}{self.ring.var if i > 0 else ''}{print_superscript(i) if i > 1 else ''}" for i,a in enumerate(self.coefs) if a != a.ring.zero]
 
-                if self.coefs[0] != self.ring.ring.zero:
-                    s = str(self.coefs[0])
-                    if " " in s:
-                        s = "("+s+")"
-                    total_s.append(s)
-
-
-                for i in range(1,self.deg()+1):
-                    s = ""
-                    if self.coefs[i] != self.ring.ring.zero:
-                        c = str(self.coefs[i])
-                        if " " in c:
-                            c = "("+c+")"
-                        if self.coefs[i] == self.ring.ring.one:
-                            c = ""
-                        s += c  + self.ring.var + print_superscript(i)
-                        total_s.append(s)
-
-                return " + ".join(total_s)
+                return " + ".join(reversed(reps))
 
             else :# self.ring.repr == None:
-                if len(self.coefs) == 0:
+
+                if self == self.ring.zero:
                     return "(0)"
-                s = "(" + str(self.coefs[0])
-                for i in range(1,self.deg()+1):
-                    if self.coefs[i] != self.ring.ring.zero:
-                        c = str(self.coefs[i]) 
-                        if self.coefs[i] == self.ring.ring.one:
-                            c = ""
-                        s += " + " + c + "*" + self.ring.var + "^" + str(i)
-                s += ")"
-                return s
+
+                reps = [f"{repr(a)}{'*' if i > 0 else ''}{self.ring.var if i > 0 else ''}{'^' if i > 1 else ''}{i if i > 1 else ''}" for i,a in enumerate(self.coefs) if a != a.ring.zero]
+
+                return "(" + " + ".join(reversed(reps)) + ")"
 
 
         def der(self):
@@ -127,7 +115,12 @@ class PolynomialRing(Ring):
                 return poly
 
         def content(self):
-            return gcd(*self.coefs)
+            if len(self.coefs) == 0:
+                return self.ring.ring.zero
+            elif len(self.coefs) == 1:
+                return self.coefs[0]
+            else:
+                return gcd(*self.coefs)
 
         def primitive_part(self):
             cont = self.content()
@@ -252,8 +245,13 @@ def polynomial_division(a, b):
     cb = b.deg()-1
     eb = b.coefs[-1]
 
-    main_quot = a.__class__(([R.zero] * (ca-cb)) +  [ea / eb])
+    coefquot = ea / eb if hasattr(ea, '__truediv__') else ea // eb
+
+    main_quot = a.__class__(([R.zero] * (ca-cb)) +  [coefquot])
     reduced = a - b*main_quot
+
+    if reduced.deg() >= a.deg():
+        raise ValueError(f"Division undefined for {a} and {b} in {a.ring}")
 
     quot, rem = polynomial_division(reduced, b)
     return (quot+main_quot, rem)

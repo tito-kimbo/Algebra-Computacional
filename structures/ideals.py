@@ -152,6 +152,12 @@ class RingQuotient(BaseQuotient, Ring):
         
         def inner_mul(self,other):
             return self.__class__(self.val*other.val)
+
+        def __floordiv__(self, other):
+            return type(self)(self.val // other.val)
+
+        def __mod__(self, other):
+            return type(self)(self.val % other.val)
         
         def __eq__(self,other):
             return isinstance(other, Ring.Element) and other.ring == self.ring and self.ring.ideal.has(self.val-other.val)
@@ -170,7 +176,7 @@ class RingQuotient(BaseQuotient, Ring):
             return rep % self.ring.ideal.generator
 
         def is_unit(self):
-            raise NotImplementedError()
+            return gcd(self.ring.ideal.generator, self.val).is_unit()
 
         def __lt__(self, other):
             return self.reduce_rep(self.val) < other.reduce_rep(self.val)
@@ -266,6 +272,20 @@ class FieldQuotient(BaseQuotient, Field):
         self.ideal = ideal
         super(Field, self).__init__(zero=self.Element(ring.zero), one=self.Element(ring.one), **kw)
 
+
+    def generator(self):
+        """
+            Returns the class x + <pol>, which is a generator of the field if pol is primitive
+        """
+
+        from structures.polynomials import PolynomialRing
+
+        if isinstance(self.ideal.ring, PolynomialRing):
+            return self.build([0,1])
+        elif self.char() > 2:
+            return self.build(2)
+        else:
+            return self.one
 
 
 def GetQuotient(ring, ideal):

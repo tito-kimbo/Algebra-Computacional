@@ -240,8 +240,8 @@ def berlekamp_cantor_zassenhaus(f):
         if w != RX.one and w != g:
             # w is a nontrivial factor of g
             result.remove(g)
-            result.append(w)
-            result.append(g//w)
+            result.append(w.primitive_part())
+            result.append((g//w).primitive_part())
 
     return result
 

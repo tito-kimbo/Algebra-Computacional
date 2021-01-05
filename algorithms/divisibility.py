@@ -42,8 +42,8 @@ def gcd(f: IntegralDomain.Element, g: IntegralDomain.Element, *args):
     while r[-1] != R.zero:
         r.append(r[-2] % r[-1])
 
-    if r[-2].is_unit():
-        return R.one
+    #if r[-2].is_unit():
+    #    return R.one
 
     if len(args) > 0:
         return gcd(r[-2], *args)

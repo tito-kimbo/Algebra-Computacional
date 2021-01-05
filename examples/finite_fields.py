@@ -35,10 +35,3 @@ class FiniteField(FieldQuotient):
         self.repr = rep
         if rep == "reduced":
             self.ring.setRepr(rep)
-
-    def generator(self):
-        """
-            Returns the class x + <pol>, which is a generator of the field if pol is primitive
-        """
-
-        return self.build([0,1])

@@ -141,7 +141,7 @@ class Ring(ABC):
     def order(self):
         pass
 
-    repr = None
+    repr = "reduced"
     def setRepr(self, rep):
         self.repr = rep
 
