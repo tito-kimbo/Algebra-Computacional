@@ -161,41 +161,49 @@ class GaussianIntegers(EuclideanDomain):
             self.b=b
         
         def __add__(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return GaussianIntegers.Element(self.a+other.a,self.b+other.b)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.a+other.a,self.b+other.b)
 
         def __sub__(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return GaussianIntegers.Element(self.a-other.a,self.b-other.b)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.a-other.a,self.b-other.b)
         
         def inner_mul(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return GaussianIntegers.Element(self.a*other.a-self.b*other.b,self.a*other.b+self.b*other.a)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.a*other.a-self.b*other.b,self.a*other.b+self.b*other.a)
         
         def __eq__(self,other):
             return type(other) is type(self) and self.a==other.a and self.b==other.b
         
         # WIP
         def __floordiv__(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return Z.Element(self.val//other.val)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.val//other.val)
         # WIP
         def __truediv__(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return Z.Element(self.val//other.val)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.val//other.val)
         # WIP
         def __mod__(self,other):
-            _op_typecheck(other,allowed=[GaussianIntegers.Element])
-            return Z.Element(self.val%other.val)
+            _op_typecheck(other,allowed=[Zi.Element])
+            return Zi.Element(self.val%other.val)
             
         def __neg__(self):
-            return GaussianIntegers.Element(-self.a,-self.b)
+            return Zi.Element(-self.a,-self.b)
+        
+        def conj(self):
+            return Zi.Element(self.a,-self.b)
 
         def __str__(self):
-            if self.b >= 0:
-                return ''.join([str(self.a),'+',str(self.b),'i'])
+            if self.b == 0:
+                s = str(self.a)
+            elif self.a == 0:
+                s = ''.join([str(self.b),'i'])
+            elif self.b < 0:
+                s = ''.join([str(self.a),str(self.b),'i'])
             else:
-                return ''.join([str(self.a),str(self.b),'i'])
+                s = ''.join([str(self.a),'+',str(self.b),'i'])
+            return ''.join(['(',s,')'])
         
         def __hash__(self):
             return hash(("Z[i]", self.a, self.b))
