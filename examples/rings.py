@@ -10,11 +10,11 @@ def _op_typecheck(operand,allowed):
 
 
 """
-    Ring of integers
+    Ring of gaussian integers
     Usage:
-        from structures.rings import Z
-        i18 = Z.build(18)
-        i2 = Z.one + Z.one
+        from structures.rings import Zi
+        gi_i = Zi.build(0,1)
+        gi2 = Zi.one + Zi.one
 """
 class Z(EuclideanDomain):
     
@@ -141,3 +141,108 @@ class Z(EuclideanDomain):
 
 
 Z = Z()
+
+"""
+    Ring of integers
+    Usage:
+        from structures.rings import Z
+        i18 = Z.build(18)
+        i2 = Z.one + Z.one
+"""
+class GaussianIntegers(EuclideanDomain):
+    
+    class Element(EuclideanDomain.Element):
+    
+        def __init__(self,a,b, *args, **kw):
+            super().__init__(*args, **kw)
+            _op_typecheck(a,allowed=[int])
+            _op_typecheck(b,allowed=[int])
+            self.a=a
+            self.b=b
+        
+        def __add__(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return GaussianIntegers.Element(self.a+other.a,self.b+other.b)
+
+        def __sub__(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return GaussianIntegers.Element(self.a-other.a,self.b-other.b)
+        
+        def inner_mul(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return GaussianIntegers.Element(self.a*other.a-self.b*other.b,self.a*other.b+self.b*other.a)
+        
+        def __eq__(self,other):
+            return type(other) is type(self) and self.a==other.a and self.b==other.b
+        
+        # WIP
+        def __floordiv__(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return Z.Element(self.val//other.val)
+        # WIP
+        def __truediv__(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return Z.Element(self.val//other.val)
+        # WIP
+        def __mod__(self,other):
+            _op_typecheck(other,allowed=[GaussianIntegers.Element])
+            return Z.Element(self.val%other.val)
+            
+        def __neg__(self):
+            return GaussianIntegers.Element(-self.a,-self.b)
+
+        def __str__(self):
+            if self.b >= 0:
+                return ''.join([str(self.a),'+',str(self.b),'i'])
+            else:
+                return ''.join([str(self.a),str(self.b),'i'])
+        
+        def __hash__(self):
+            return hash(("Z[i]", self.a, self.b))
+        
+        def is_unit(self):
+            return (self.a == 0 and self.b in [-1,1]) or (self.a in [-1,1] and self.b == 0)
+            
+        def factors(self,other):
+            pass
+    
+        def is_prime(self,other):
+            pass
+        
+        def __lt__(self,other):
+            raise NotImplementedError("This should never be called.")
+
+
+            
+    def __init__(self):
+        super().__init__(self.build(0,0),self.build(1,0))
+    
+    def phi(self,element):
+        if type(element) is not self.Element:
+            raise TypeError("Phi can only be applied to elements of the ring")
+        return sqrt(element.a*element.a+element.b*element.b)
+
+    def numphi(self, n):
+        return n
+
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+
+    def __str__(self):
+        return "\N{DOUBLE-STRUCK CAPITAL Z}[i]"
+
+    
+    def __mul__(self, other):
+        # Assumes other is of type GaussianIntegers.Element
+        if type(other) == GaussianIntegers.Element:
+            return super().__mul__(other)
+        else:
+            raise ValueError("Incompatible type")
+    
+    def char(self):
+        return 0
+
+    def order(self):
+        return -1
+
+Zi = GaussianIntegers()
