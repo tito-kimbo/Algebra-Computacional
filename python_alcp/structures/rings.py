@@ -157,6 +157,14 @@ class RingElement():
     def __rmul__(self, other):
         return self.__mul__(other)
 
+    def __truediv__(self, other):
+        assuming(other.is_unit(), "Can't divide by non-unit")
+        return self * other.inverse()
+
+    def inverse(self):
+        assuming(self.is_unit(), "Can't invert non-unit")
+        return next(u for u in type(self).units() if u*self == type(self).one)
+
     def __pow__(self, other):
         if type(other) == int:
             return fast_exponentiation(self, other)
@@ -199,10 +207,7 @@ class RingElement():
         return not self.__lt__(other)
 
     def normal(self):
-        if self.is_unit():
-            return type(self).one
-        else:
-            return min([self*u for u in type(self).units()])
+        return self
 
 
 
@@ -263,3 +268,6 @@ class FieldElement(EuclideanDomainElement):
 
     def factors(self):
         return [self]
+
+    def normal(self):
+        return type(self).one

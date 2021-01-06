@@ -1,7 +1,9 @@
 from functools import reduce
 
 from python_alcp.algorithms.divisibility import gcd, eea
+from python_alcp.utils import external
 
+@external
 def modinv(x,f):
     """Receives two elements of the same ring R and returns the inverse of x in R/<f>. <f> must be maximal.
        

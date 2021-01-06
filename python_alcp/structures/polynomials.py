@@ -175,8 +175,10 @@ class PolynomialRingElement(RingElement):
         
         # If not, divide by leading coef
         else:
-            poly = type(self)([c // nf for c in self.val])
+            div = (self.val[-1] / nf)
+            poly = type(self)([c / div for c in self.val])
             return poly
+
 
     def content(self):
         if len(self.val) == 0:
@@ -239,7 +241,7 @@ class PolynomialEDElement(PolynomialRingElement, EuclideanDomainElement):
 
 
 
-def polynomial_division(a, b):
+def polynomial_division(a, b, pseudo = False):
     """ 
         Computes a // b, where a and b are polynomials.
         Returns (quotient, remainder)
@@ -262,12 +264,14 @@ def polynomial_division(a, b):
 
     if ea != eb*coefquot:
         # Division is undefined, try pseudodivision
-        return polynomial_division(a*(eb**delta),b)
+        if not pseudo:
+            raise ValueError(f"Division undefined for {a} and {b} in {R}")
+        return polynomial_division(a*(eb**delta),b, pseudo)
 
     main_quot = type(a)(([R.zero] * (ca-cb)) +  [coefquot])
     reduced = a - b*main_quot
 
-    quot, rem = polynomial_division(reduced, b)
+    quot, rem = polynomial_division(reduced, b, pseudo)
     return (quot+main_quot, rem)
 
 

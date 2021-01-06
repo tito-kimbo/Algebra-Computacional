@@ -36,7 +36,7 @@ def gcd_dfu(f, g, *args):
         lc = r[-1].coefs[-1]
 
         # Then, we take the remainder of the division
-        quot, re = polynomial_division(r[-2] * lc, r[-1])
+        quot, re = polynomial_division(r[-2] * lc, r[-1], pseudo = True)
         
         # Lastly, we take the primitive part of the polynomial
         if re.deg() > 1:
