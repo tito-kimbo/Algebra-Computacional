@@ -1,34 +1,28 @@
-def _factorize(n: int):
-    # Crude factorization
-    # TODO replace by sieve
-    if n < 2:
-        return []
-    for i in range(2,n+1):
-        if n % i == 0:
-            return [i] + _factorize(n//i)
+from python_alcp.utils import prime_factors, external, assuming
+from python_alcp.algorithms.divisibility import gcd
+from python_alcp.structures.ideals import GetQuotient, GetRingQuotient
 
+@external
 def rabin_test(pol):
     """
         Rabin's test of irreducibility for polynomials with coefficients in a finite field
     """
 
-    from structures.ideals import RingQuotient
-
     PR = pol.ring       # polinomial ring
-    R = PR.ring         # coefficient ring (field)
+    R = PR.coefRing         # coefficient ring (field)
     assuming(R.is_finite())
 
     p = R.order()
     n = pol.deg()
 
-    quotRing = RingQuotient(PR,(PR*pol))
+    quotRing = GetRingQuotient(PR,(PR*pol))
 
     x = quotRing.build([R.zero,R.one])
 
     if (x**(p**n)-x) != quotRing.zero:
         return False
 
-    factors = set(_factorize(n))
+    factors = set(prime_factors(n).keys())
     for f in factors:
         ni = n//f
         if not gcd(pol, (x**(p**ni)-x).val).is_unit():

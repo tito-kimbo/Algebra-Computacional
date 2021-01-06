@@ -1,8 +1,8 @@
 from collections import defaultdict
-from algorithms.divisibility import gcd
 import random
 from math import log2
 
+from python_alcp.algorithms.divisibility import gcd
 
 
 def squarefree_decomposition(f):

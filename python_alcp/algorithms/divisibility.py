@@ -1,8 +1,9 @@
-from structures.rings import EuclideanDomain, IntegralDomain, UniqueFactorizationDomain
 from functools import reduce
 
+from python_alcp.utils import external
 
-def eea(f: IntegralDomain.Element, g: IntegralDomain.Element):
+@external
+def eea(f, g):
     """ Extended Euclid Algorithm
         Given two elements of an euclidean domain, compute the gcd
         and the bezout identity elements.
@@ -24,26 +25,18 @@ def eea(f: IntegralDomain.Element, g: IntegralDomain.Element):
         s.append(s[-2] - q*s[-1])
         t.append(t[-2] - q*t[-1])
 
-
-    if r[-2].is_unit():
-        q = R.one // r[-2]
-        r[-2] = r[-2] * q
-        s[-2] = s[-2] * q
-        t[-2] = t[-2] * q
-
     return (r[-2], s[-2], t[-2])
 
-def gcd(f: IntegralDomain.Element, g: IntegralDomain.Element, *args):
+@external
+def gcd(f, g, *args):
     """ Greatest common divisor, can be derived from EEA"""
+
     if f.ring != g.ring:
         raise ValueError("f and g must be elements of the same ring")
     R =  f.ring
     r = [f,g]
     while r[-1] != R.zero:
         r.append(r[-2] % r[-1])
-
-    #if r[-2].is_unit():
-    #    return R.one
 
     if len(args) > 0:
         return gcd(r[-2], *args)

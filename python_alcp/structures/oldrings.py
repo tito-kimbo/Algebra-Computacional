@@ -1,7 +1,6 @@
-from abc import ABC,abstractmethod
-from utils import assuming
+from python_alcp.utils import assuming
 
-class Ring(ABC):
+class Ring():
     """Class representing an algebraic ring (commutative ring with unity)"""
     
     class Element(ABC): 
@@ -210,32 +209,3 @@ class EuclideanDomain(UniqueFactorizationDomain):
             if the number is infinite / unknown
         """
         pass
-
-
-def repeated_addition(element: Ring.Element, n: int):
-    """ Computes a+a+a+a... (n times) in O(log(n)) time """
-
-    res = element.ring.zero
-    acc = element
-    while n > 0:
-        if n % 2 == 1:
-            res += acc
-        n //= 2
-        acc = acc+acc
-
-    return res
-
-def fast_exponentiation(element: Ring.Element, n: int):
-    """
-        Computes a^n in O(log(n)) time
-    """
-
-    res = element.ring.one
-    acc = element
-    while n > 0:
-        if n % 2 == 1:
-            res *= acc
-        n //= 2
-        acc = acc*acc
-
-    return res

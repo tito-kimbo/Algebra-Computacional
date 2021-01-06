@@ -1,7 +1,7 @@
-from algorithms.divisibility import gcd
-from algorithms.discrete_log import discrete_log
-from examples.rings import *
-from utils import *
+from python_alcp.algorithms.divisibility import gcd
+from python_alcp.algorithms.discrete_log import discrete_log
+from python_alcp.examples.rings import Z
+from python_alcp.utils import *
 from random import randint
 import math
 

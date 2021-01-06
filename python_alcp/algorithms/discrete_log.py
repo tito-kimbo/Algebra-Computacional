@@ -1,5 +1,7 @@
 from math import ceil, sqrt
 
+from python_alcp.utils import external
+
 def _incustom(elem, l):
     for i in range(len(l)):
         if(l[i]==elem):
@@ -8,6 +10,7 @@ def _incustom(elem, l):
 
 """ Returns the discrete logarithm with base a of h using Shanks 
 algorithm (baby-step giant-step)."""
+@external
 def discrete_log(a,h):
     if a.ring != h.ring:
         raise ValueError('Both elements must belong to the same ring') 

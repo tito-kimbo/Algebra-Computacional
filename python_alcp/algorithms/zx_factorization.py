@@ -1,11 +1,13 @@
-from examples.rings import Z
-from algorithms.factorization import berlekamp_cantor_zassenhaus
-from algorithms.divisibility import eea, gcd
-from utils import assuming
 import random
 import itertools
 from functools import reduce
 from math import sqrt
+
+
+from python_alcp.examples.rings import Z
+from python_alcp.algorithms.factorization import berlekamp_cantor_zassenhaus
+from python_alcp.algorithms.divisibility import eea, gcd
+from python_alcp.utils import assuming, primes
 
 def _embed_polynomial(pol, target):
     coefs = target.ring
@@ -105,33 +107,6 @@ def recover_factors(f, gs):
     return result
 
 
-curprimes = [2,3]
-def primes():
-
-    def _p():
-        # Generator that returns primes
-        
-        count = 0
-        while count < len(curprimes):
-            yield curprimes[count]
-            count += 1
-
-        i = curprimes[-1] + 2
-        while True:
-            prime = True
-            for p in curprimes:
-                if i % p == 0:
-                    prime = False
-                    break
-
-            if prime:
-                curprimes.append(i)
-                yield i
-
-            i += 2
-
-    return _p()
-    
 
 def zx_factorization(f):
     """
