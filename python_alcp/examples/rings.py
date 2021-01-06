@@ -1,8 +1,11 @@
 from math import floor, sqrt
 
-from python_alcp.utils import assuming, try_op, external, primes, prime_factors
+from python_alcp.utils import assuming, try_op, external, primes, prime_factors, op_typecheck
 from python_alcp.structures.rings import EuclideanDomain, EuclideanDomainElement
 
+
+
+######### Integers ###############
 
 """
     Ring of integers
@@ -119,5 +122,113 @@ class Integers(EuclideanDomain):
 
 
 
-Z = Integers("Z", (IntElement,), {})
+Z = Integers("\N{DOUBLE-STRUCK CAPITAL Z}", (IntElement,), {})
 external(Z)
+
+
+
+
+
+
+######### Gaussian Integers ###############
+
+
+
+class GaussianIntegers(EuclideanDomain):
+    
+    def phi(cls,element):
+        if not isinstance(element, cls):
+            raise TypeError("Phi can only be applied to elements of the ring")
+        return sqrt(element.a*element.a+element.b*element.b)
+
+    def numphi(cls, n):
+        return n
+
+    def __mul__(cls, other):
+        # Assumes other is of type GaussianIntegers
+        if isinstance(other, cls):
+            return super().__mul__(other)
+        else:
+            raise ValueError("Incompatible type")
+    
+    def char(cls):
+        return 0
+
+    def order(cls):
+        return 0
+
+
+class GaussianIntegerElement(EuclideanDomainElement):
+
+    def __init__(self,a,b = None, *args, **kw):
+        op_typecheck(a,allowed=[int])
+        self.a=a
+        if b is not None:
+            op_typecheck(b,allowed=[int])
+            self.b=b
+        else:
+            self.b = 0
+    
+    def __add__(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.a+other.a,self.b+other.b)
+
+    def __sub__(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.a-other.a,self.b-other.b)
+    
+    def inner_mul(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.a*other.a-self.b*other.b,self.a*other.b+self.b*other.a)
+    
+    def __eq__(self,other):
+        return type(other) is type(self) and self.a==other.a and self.b==other.b
+    
+    # WIP
+    def __floordiv__(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.val//other.val)
+    # WIP
+    def __truediv__(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.val//other.val)
+    # WIP
+    def __mod__(self,other):
+        op_typecheck(other,allowed=[type(self)])
+        return type(self)(self.val%other.val)
+        
+    def __neg__(self):
+        return type(self)(-self.a,-self.b)
+    
+    def conj(self):
+        return type(self)(self.a,-self.b)
+
+    def __str__(self):
+        if self.b == 0:
+            s = str(self.a)
+        elif self.a == 0:
+            s = ''.join([str(self.b),'i'])
+        elif self.b < 0:
+            s = ''.join([str(self.a),str(self.b),'i'])
+        else:
+            s = ''.join([str(self.a),'+',str(self.b),'i'])
+        return ''.join(['(',s,')'])
+    
+    def __hash__(self):
+        return hash(("Z[i]", self.a, self.b))
+    
+    def is_unit(self):
+        return (self.a == 0 and self.b in [-1,1]) or (self.a in [-1,1] and self.b == 0)
+        
+    def factors(self,other):
+        pass
+
+    def is_prime(self,other):
+        pass
+    
+    def __lt__(self,other):
+        raise NotImplementedError("This should never be called.")
+
+
+Zi = GaussianIntegers("\N{DOUBLE-STRUCK CAPITAL Z}[i]", (GaussianIntegerElement,), {})
+external(Zi)

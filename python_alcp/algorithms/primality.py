@@ -56,11 +56,12 @@ def is_prime_aks(n):
     #test (X+a)^n = X^n+a in Z_n[X] (mod X^r-1)
     sqrt_phi_r = math.sqrt(euler_phi(r))
     R = (Z/(Z*n))["X"]
+    x_n = R.build([0 for _ in range(n.val)]+[1])
     for i in range(1,int(sqrt_phi_r*L)):
-        P1 = R.build([1,i]) # (x+i)^n
-        P2 = R.build([1,0])**n+R.build([i]) # x^n+i
-        M = R.build([1,0])**n-R.build([1]) # x^r-1
-        if P1 % M != P2:
+        P1 = R.build([i,1])**n.val # (x+i)^n
+        P2 = x_n+R.build([i]) # x^n+i
+        M = x_n-R.build([1]) # x^r-1
+        if P1 % M != P2 % M:
             return False
     return True
     
