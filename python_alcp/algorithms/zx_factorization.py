@@ -1,7 +1,7 @@
 import random
 import itertools
 from functools import reduce
-from math import sqrt
+from math import sqrt, ceil, log2
 
 
 from python_alcp.examples.rings import Z
@@ -9,10 +9,6 @@ from python_alcp.algorithms.factorization import berlekamp_cantor_zassenhaus
 from python_alcp.algorithms.divisibility import eea, gcd
 from python_alcp.utils import assuming, primes
 
-def _embed_polynomial(pol, target):
-    coefs = target.ring
-    res = target.build([coefs.build(a.val.val) for a in pol.coefs])
-    return res
 
 def hensel_lifting(f, g, h, s, t):
     """
@@ -24,20 +20,20 @@ def hensel_lifting(f, g, h, s, t):
 
     # Implements algorithm 2.4.6
 
-    R = f.ring.ring
+    R = f.ring.coefRing
     
     q = R.ideal.generator
 
-    newR = R.ring / (R.ring * (q**2))
-    RX = newR["X"]
+    newR = R.baseRing / (R.baseRing * (q**2))
+    RX = newR[f.ring.var]
 
 
     # Move to the higher ring
-    fp = _embed_polynomial(f, RX)
-    gp = _embed_polynomial(g, RX)
-    hp = _embed_polynomial(h, RX)
-    sp = _embed_polynomial(s, RX)
-    tp = _embed_polynomial(t, RX)
+    fp = RX(f)
+    gp = RX(g)
+    hp = RX(h)
+    sp = RX(s)
+    tp = RX(t)
 
     # Calculate lifted polynomials
     nabla = fp - gp * hp
@@ -72,14 +68,18 @@ def recover_factors(f, gs):
             return x.val + x.ring.ideal.generator
         return x.val
 
-    R = f.ring.ring
-    RX = f.ring
-    ZX = Z["X"]
+    R = gs[0].ring.coefRing
+    RX = gs[0].ring
+    ZX = Z[RX.var]
 
-    L = f.coefs[f.deg()-1]
-    h = _embed_polynomial(f, ZX)
+    order = R.order()
+    lb = -(R.order() // 2)
+    ub = (R.order() // 2)
+
+    L = f.coefs[-1]
+    h = ZX(f)
     d = 1
-    I = list(range(1,len(gs)+1))
+    I = list(range(len(gs)))
 
     result = []
 
@@ -88,11 +88,11 @@ def recover_factors(f, gs):
         while len(P) > 0 and 2*d <= len(I):
             S = random.choice(P)
             P.remove(S)
-            g_ = reduce(RX.Element.__mul__, [gs[i] for i in S], RX.build([L]))
+            g_ = reduce(RX.__mul__, [gs[i] for i in S], RX.build([L]))
             
-            g = ZX.build([represent(v) for v in g_.coefs])
+            g = ZX.build([represent(v, lb, ub) for v in g_.coefs])
 
-            if ZX.build([L.val.val])*h % g == ZX.zero:
+            if ZX.build([int(L)])*h % g == ZX.zero:
                 gp = g.primitive_part()
                 result.append(gp)
                 h = h // gp
@@ -114,7 +114,7 @@ def zx_factorization(f):
     # Implements Algorithm 2.4.3
 
     def norm(f):
-        return sqrt(sum([a.val**2 for a in f.coefs]))
+        return sqrt(sum([int(a)**2 for a in f.coefs]))
 
     L = f.coefs[f.deg()]
 
@@ -128,22 +128,19 @@ def zx_factorization(f):
             break
         p = next(prim)
 
-    print(f_)
-    print(RX)
-
     factors = berlekamp_cantor_zassenhaus(f_)
 
     nfac = len(factors)
-    print(nfac)
-    print(factors)
 
     N = 1
     nor = norm(f)
     while p**N < (2**(f.deg()+1)) * nor:
         N += 1
 
+    n_lifts = int(ceil(log2(N)))
+
     
-    for i in range(1,N):
+    for i in range(n_lifts):
         # Hensel lifting from i to i+1
 
         RX = f_.ring
@@ -157,22 +154,21 @@ def zx_factorization(f):
             g = factors[j]
             h = reduce(RX.Element.__mul__, factors[j+1:], RX.one)
 
-            print(g, h)
+            gc, s, t = eea(g, h)
 
-            _, s, t = eea(g, h)
+            if gc != gc.normal():
+                s /= gc
+                t /= gc
 
-            print(s, t)
-            print(_)
-
-            assuming(_ == RX.one, "Factorization failed")
+            assuming(gc.is_unit(), "Factorization failed")
 
             nf, ng, nh, ns, nt = hensel_lifting(f_, g, h, s, t)
 
             newfactors.append(ng)
 
         newfactors.append(nh)
-        f_ = _embed_polynomial(f_, nf.ring)
+        f_ = type(nf)(f_)
         factors = newfactors
 
-    return recover_factors(factors)
+    return recover_factors(f,factors)
 

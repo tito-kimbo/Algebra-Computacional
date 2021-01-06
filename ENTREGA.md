@@ -19,7 +19,7 @@ En la carpeta `algorithms`, en el fichero `chinese_remainder.py`, es la función
 
   <li><i>Mcd en un D.F.U.</i></li>
 
-<b>TO BE INCLUDED</b>
+En la carpeta `algorithms`, en el fichero `gcd_dfu.py`, es la función `gcd_dfu`
 
   <li><i>Inverso de un elemento en un cuerpo finito.</i></li>
 
@@ -32,7 +32,7 @@ En la carpeta `algorithms`, en el fichero `primality`, es la función `rabin_tes
 
   <li><i>Logaritmo discreto en cuerpos Fq[x]/(f(x))</i></li>
 
-<b>TO BE INCLUDED</b>
+En la carpeta `algorithms`, en el fichero `discrete_log.py`, es la función `discrete_log`
 
   <li><i>Algoritmo de factorización de un polinomio en cuerpo finito parte 1, 2 y 3.</i></li>
 
@@ -43,16 +43,19 @@ En la carpeta `algorithms`, en el fichero `factorization`, functiones `squarefre
 
 En la carpeta `algorithms`, en el fichero `factorization`, funciones `berlekamp_factorization` y `berlekamp_cantor_zassenhaus`
 
-<b>TO BE INCLUDED</b>
-
   <li><i>Algorimos de factorizacion en Z[x]</i></li>
 
-<b>TO BE DONE</b>
+En la carpeta `algorithms`, en el fichero `zx_factorization.py`, es la función `zx_factorization`
 
   <li><i>Algorimo de primalidad de AKS</i></li>
 
-<b>TO BE INCLUDED</b>
+En la carpeta `algorithms`, en el fichero `primality.py`, es la función `is_prime_aks`
 
 </ul>
 
 ## Algoritmos adicionales
+
+
+  <li><i>Algorimo de primalidad de Miller-Rabin</i></li>
+
+En la carpeta `algorithms`, en el fichero `primality.py`, es la función `is_prime_miller_rabin`

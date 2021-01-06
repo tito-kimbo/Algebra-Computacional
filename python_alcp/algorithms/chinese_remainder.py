@@ -14,6 +14,15 @@ def modinv(x,f):
         raise ValueError('Both elements must belong to the same ring')
 
     g,s,t = eea(x,f)
+
+    if not g.is_unit():
+        raise ValueError(f"{x} has no inverse modulo {f}")
+
+    if g != g.ring.one:
+        s /= g
+        t /= g
+        g /= g
+
     return s
 
 def chinese_remainder(eqs,mods):

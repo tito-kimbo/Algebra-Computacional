@@ -99,13 +99,17 @@ class IntElement(EuclideanDomainElement):
 
     def is_prime(self):
         for p in primes():
-            if self.val == p:
-                return True
-            if p > self:
+            if self.val % p == 0:
                 return False
+            if p**2 > self:
+                return True
 
     def is_unit(self):
         return self.val == 1 or self.val == -1
+
+    def inverse(self):
+        assuming(self.is_unit(), "Can't invert non-unit")
+        return self
 
     def factors(self):
         return {type(self)(k):v for k,v in prime_factors(self).items()}
@@ -120,6 +124,16 @@ class Integers(EuclideanDomain):
 
     def generators(cls):
         return {cls(1)}
+
+    def elements(cls):
+        def elemgen():
+            yield 0
+            i = 1
+            while True:
+                yield cls(i)
+                yield cls(-i)
+                i += 1
+        return elemgen()
 
     def phi(cls, element):
         return abs(element.val)

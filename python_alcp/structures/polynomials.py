@@ -35,8 +35,8 @@ class PolynomialRing(Ring):
         if rep == "reduced":
             cls.coefRing.setRepr(rep)
 
-    def generator(cls):
-        return {cls(0,1)}.union(cls.coefRing.generators())
+    def generators(cls):
+        return {cls(0,1)}.union({cls(c) for c in cls.coefRing.generators()})
 
     def units(cls):
         return {cls(u) for u in cls.coefRing.units()}
@@ -153,6 +153,10 @@ class PolynomialRingElement(RingElement):
                     return False
             return True
 
+    def inverse(self):
+        assuming(self.is_unit(), "Can't invert non-unit")
+        return type(self)(self.val[0].inverse())
+
     def der(self):
         # derivative
         new_val = []
@@ -250,30 +254,39 @@ def polynomial_division(a, b, pseudo = False):
     
     R = type(a).coefRing
 
+    if b == type(b).zero:
+        raise ValueError("Can't divide polynomial by 0")
+
     if a.deg() < b.deg():
         return (type(a).zero, a)
 
-    # coef and exp of the largest monomials
-    ca = a.deg()-1
-    ea = a.val[-1]
-    cb = b.deg()-1
-    eb = b.val[-1]
+    delta = a.deg() - b.deg() + 1
+    rem = list(a.val)
+    div = list(b.val)
+    
+    quot = [R.zero] * (delta)
 
-    delta = max(0, ca-cb+1)
-    coefquot = ea / eb if hasattr(ea, '__truediv__') else ea // eb
+    lcdiv = div[-1]
+    while len(rem) >= len(div):
 
-    if ea != eb*coefquot:
-        # Division is undefined, try pseudodivision
-        if not pseudo:
-            raise ValueError(f"Division undefined for {a} and {b} in {R}")
-        return polynomial_division(a*(eb**delta),b, pseudo)
+        lc = rem[-1]
+        degdif = len(rem) - len(div)
+        nquot = R(lc / lcdiv) if lcdiv.is_unit() else R(lc // lcdiv)
 
-    main_quot = type(a)(([R.zero] * (ca-cb)) +  [coefquot])
-    reduced = a - b*main_quot
+        if lc != lcdiv*nquot:
+            # Division is undefined, try pseudodivision
+            if not pseudo:
+                raise ValueError(f"Division undefined for {a} and {b} in {R}")
+            return polynomial_division(a*(b.val[-1]**delta),b, pseudo)
 
-    quot, rem = polynomial_division(reduced, b, pseudo)
-    return (quot+main_quot, rem)
+        for i,v in enumerate(div):
+            rem[i+degdif] -= v*nquot
 
+        while len(rem) > 0 and rem[-1] == R.zero:
+            rem.pop()
+        quot[degdif] += nquot
+
+    return type(a)(quot), type(a)(rem)
 
 @external
 def GetPolynomials(ring, var = None):

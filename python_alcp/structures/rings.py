@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from math import floor, sqrt
+import random
 
 from python_alcp.utils import (
         assuming,
@@ -73,6 +74,34 @@ class Ring(type):
     @abstractmethod
     def generators(cls):
         pass
+
+    def elements(cls):
+        # Note: potentially infinite!
+
+        if not hasattr(cls, "__exploring"):
+            cls.__exploring = {cls.one}.union(cls.generators())
+            cls.__visited = {cls.zero}
+
+        def elemgen(exploring, visited):
+
+            for e in visited:
+                yield e
+
+            while len(exploring) > 0:
+                e1 = random.sample(exploring, 1)[0]
+                if e1 not in visited:
+                    yield e1
+                visited.add(e1)
+                if -e1 not in visited:
+                    exploring.add(-e1)
+                for e2 in visited:
+                    if (e1+e2) not in visited:
+                        exploring.add(e1+e2)
+                    if (e1*e2) not in visited:
+                        exploring.add(e1*e2)
+                exploring.remove(e1)
+
+        return elemgen(cls.__exploring, cls.__visited)
 
     @abstractmethod
     def units(cls):
@@ -207,8 +236,16 @@ class RingElement():
         return not self.__lt__(other)
 
     def normal(self):
-        return self
+        if self.is_unit():
+            return type(self).one
+        else:
+            return self
 
+    def __int__(self):
+        val = self.val
+        while hasattr(val, "val"):
+            val = val.val
+        return int(val)
 
 
 class IntegralDomainElement(RingElement):

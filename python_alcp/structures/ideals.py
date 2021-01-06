@@ -124,19 +124,6 @@ class Quotient(Ring):
     def generators(cls):
         return {cls(g) for g in cls.baseRing.generators() if cls(g) != cls.zero}
 
-    def elements(cls):
-        # Note: potentially infinite!
-        exploring = {cls.zero, cls.one}.union(cls.generators())
-        visited = {cls.zero, cls.one}
-        while len(exploring) > 0:
-            e1 = random.sample(exploring, 1)[0]
-            yield e1
-            for e2 in visited:
-                if (e1+e2) not in visited:
-                    exploring.add(e1+e2)
-            exploring.remove(e1)
-            visited.add(e1)
-
     def units(cls):
         return {e for e in cls.elements() if e.is_unit()}
 
@@ -175,11 +162,17 @@ class RingQuotientElement(RingElement):
     def __floordiv__(self, other):
         return type(self)(self.val // other.val)
 
+    def __truediv__(self,other):
+        return self * other.inverse()
+
     def __mod__(self, other):
         return type(self)(self.val % other.val)
     
     def __eq__(self,other):
         return type(other) == type(self) and self.ideal.has(self.val-other.val)
+
+    def inverse(self):
+        return type(self)(externals.modinv(self.val, type(self).ideal.generator))
         
     def __str__(self):
         if self.ring.repr == "reduced":
@@ -209,17 +202,6 @@ class RingQuotientElement(RingElement):
 
 class FieldQuotientElement(RingQuotientElement, FieldElement):
     """ A quotient which has a field structure """
-
-
-    def inverse(self):
-        assuming(self.baseRing.is_euclidean(), "Can't calculate modular inverse in non-euclidean domain")
-        if self == 0:
-            raise ValueError(f"{self} does not have an inverse")
-        gcd, inv, _ = externals.eea(self.val,self.ideal.generator)
-        if gcd != 1:
-            assuming(gcd.is_unit(), f"Could not find inverse of {self} in {type(self)}! Is the field well constructed?")
-            inv = inv // gcd
-        return type(self)(inv)
 
     def __truediv__(self, other):
         return self * other.inverse()

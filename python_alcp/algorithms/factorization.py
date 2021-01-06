@@ -30,14 +30,14 @@ def squarefree_decomposition(f):
 
     i = 0
     L = dict()
-    gs = [gcd(f,fp)]
+    gs = [gcd(f,fp).normal()]
     ws = [f // gs[0]]
 
     while ws[i] != R.one:
         i = i+1
-        ws.append(gcd(gs[i-1],ws[i-1]))
+        ws.append(gcd(gs[i-1],ws[i-1]).normal())
         gs.append(gs[i-1] // ws[i])
-        L[i] = ws[i-1] // ws[i]
+        L[i] = (ws[i-1] // ws[i]).normal()
 
     if gs[i] == R.one:
         return L
@@ -48,9 +48,9 @@ def squarefree_decomposition(f):
     result = dict()
     for k,val in L:
         if k in L2:
-            res[k] = val*L2[k]
+            result[k] = (val*L2[k]).normal()
         else:
-            res[k] = val
+            result[k] = (val).normal()
 
     return result
 
@@ -61,7 +61,7 @@ def distinct_degree_factorization(f):
     """
     
     R = f.ring
-    CoefR = R.ring      # coefficient ring
+    CoefR = R.coefRing      # coefficient ring
 
     result = defaultdict(lambda: R.one)
     q = CoefR.order()
@@ -73,7 +73,7 @@ def distinct_degree_factorization(f):
     while d <= g[d].deg()/2 - 1:
         d += 1
         h.append(h[d-1]**q % g[d-1])
-        fact = gcd(g[d-1], h[d] - x)
+        fact = gcd(g[d-1], h[d] - x).normal()
         if fact != R.one:
             result[d] = fact
         g.append(g[d-1] // fact)
@@ -92,25 +92,25 @@ def berlekamp_splitting(f, hs):
     # Implements algorithm 2.3.21
 
     # R = ring of coefficients, RX = polynomial ring
-    R = f.ring.ring
+    R = f.ring.coefRing
     RX = f.ring
 
     # s is the dim of Ker(phi) and must be
     # the number of factors, per Lemma 2.3.19
     s = len(hs)
-    if s == 1:
+    hs = [h for h in hs if h != RX.one]
+    if s == 1 or f.is_prime():
         return f
 
     
     # Compute all elements of R = Fq.
-    alpha = R.generator()
-    R_elems = [R.zero] + [alpha**i for i in range(R.order()-1)]
+    R_elems = list(R.elements())
 
     # Loop through the basis and R_elems until we find a nontrivial factor
-    i = 1
-    while i < s:
+    i = 0
+    while i < s-1:
         for a in R_elems:
-            g = gcd(f, hs[i]-RX.build([a]))
+            g = gcd(f, hs[i]-RX.build([a])).normal()
             if g != RX.one and g != f:
                 return g
         i += 1
@@ -130,7 +130,7 @@ def ker_phi_basis(f):
 
 
     # R = ring of coefficients, RX = polynomial ring
-    R = f.ring.ring
+    R = f.ring.coefRing
     RX = f.ring
 
     d = f.deg()
@@ -141,7 +141,7 @@ def ker_phi_basis(f):
     # B is a basis of R, M is the matrix of Phi_f in that basis
     # Initialize B as the standard basis and M accordingly
     B = [[R.zero]*i + [R.one] + [R.zero]*(d-1-i) for i in range(d)]
-    M = [((x**(i*q) - x**i) % f).coefs for i in range(d)]
+    M = [list(((x**(i*q) - x**i) % f).coefs) for i in range(d)]
 
     # M is build as a vector of polynomials, so we need
     # to add leading zero coefficients if the degree is
@@ -199,7 +199,7 @@ def berlekamp_cantor_zassenhaus(f):
     # Implements Algorithm 2.3.25
 
     # R = ring of coefficients, RX = polynomial ring
-    R = f.ring.ring
+    R = f.ring.coefRing
     RX = f.ring
 
     q = R.order()
@@ -223,8 +223,6 @@ def berlekamp_cantor_zassenhaus(f):
     # Store factors in result
     result = [f]
 
-    alpha = R.generator()
-
     # Look for factors until we have found all
     while len(result) < s:
         g = random.choice(result)
@@ -232,10 +230,12 @@ def berlekamp_cantor_zassenhaus(f):
             g = random.choice(result)
 
         # Construct a random element of Ker(Phi)
-        cs = [alpha**random.randint(0,q) for i in range(s)]
-        h = sum([RX.build([a])*b for a,b in zip(cs,hs)], RX.zero)
+        h = RX.zero
+        while h == RX.zero:
+            cs = random.sample(list(R.elements()), s)
+            h = sum([RX.build([a])*b for a,b in zip(cs,hs)], RX.zero)
 
-        w = gcd(g, op(h))
+        w = gcd(g, op(h)).normal()
 
         if w != RX.one and w != g:
             # w is a nontrivial factor of g
