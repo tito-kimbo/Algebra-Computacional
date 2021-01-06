@@ -81,6 +81,9 @@ class Ring(type):
     def build(cls, *args, **kwargs):
         return cls(*args, **kwargs)
 
+    def __hash__(cls):
+        return hash(cls.__name__)
+
 
 class IntegralDomain(Ring):
 
@@ -181,7 +184,7 @@ class RingElement():
         pass
 
     def __hash__(self):
-        return hash(val)   
+        return hash((type(self).__name__, self.val))
 
     def __lt__(self,other):
         pass

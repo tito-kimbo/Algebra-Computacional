@@ -1,6 +1,13 @@
 from math import floor, sqrt
 
-from python_alcp.utils import assuming, try_op, external, primes, prime_factors, op_typecheck
+from python_alcp.utils import (
+    assuming,
+    try_op,
+    external,
+    primes,
+    prime_factors,
+    op_typecheck
+)
 from python_alcp.structures.rings import EuclideanDomain, EuclideanDomainElement
 
 
@@ -83,7 +90,7 @@ class IntElement(EuclideanDomainElement):
         return str(self.val)
 
     def __hash__(self):
-        return hash(self.val)
+        return hash((type(self).__name__, self.val))
 
     def __lt__(self,other):
         while hasattr(other, 'val'):
@@ -215,7 +222,7 @@ class GaussianIntegerElement(EuclideanDomainElement):
         return ''.join(['(',s,')'])
     
     def __hash__(self):
-        return hash(("Z[i]", self.a, self.b))
+        return hash((type(self).__name__, self.a, self.b))
     
     def is_unit(self):
         return (self.a == 0 and self.b in [-1,1]) or (self.a in [-1,1] and self.b == 0)

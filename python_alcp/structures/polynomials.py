@@ -41,6 +41,9 @@ class PolynomialRing(Ring):
     def units(cls):
         return {cls(u) for u in cls.coefRing.units()}
 
+    def is_polynomial(cls):
+        return True
+
 
 class PolynomialED(PolynomialRing, EuclideanDomain):
     """
@@ -62,8 +65,10 @@ class PolynomialRingElement(RingElement):
         R = type(self).coefRing
 
         if len(val) == 1:
-            if hasattr(val[0], "__iter__") or hasattr(val[0], "val"):
+            if hasattr(val[0], "__iter__"):
                 val = val[0]
+            elif hasattr(val[0], "coefs"):
+                val = val[0].coefs
             while hasattr(val, "val") and hasattr(val.val, "__iter__"):
                 val = val.val
 
@@ -72,8 +77,8 @@ class PolynomialRingElement(RingElement):
         while len(cs) > 0 and cs[-1] == R.zero:
             cs.pop()
 
-        self.val = cs
-        self.coefs = cs
+        self.val = tuple(cs)
+        self.coefs = tuple(cs)
     
     def deg(self):
         return len(self.val)-1
@@ -192,6 +197,8 @@ class PolynomialRingElement(RingElement):
         else:
             raise NotImplementedError()
 
+    def __hash__(self):
+        return hash((type(self).__name__, self.val))
 
 
 
@@ -250,13 +257,15 @@ def polynomial_division(a, b):
     cb = b.deg()-1
     eb = b.val[-1]
 
+    delta = max(0, ca-cb+1)
     coefquot = ea / eb if hasattr(ea, '__truediv__') else ea // eb
+
+    if ea != eb*coefquot:
+        # Division is undefined, try pseudodivision
+        return polynomial_division(a*(eb**delta),b)
 
     main_quot = type(a)(([R.zero] * (ca-cb)) +  [coefquot])
     reduced = a - b*main_quot
-
-    if reduced.deg() >= a.deg():
-        raise ValueError(f"Division undefined for {a} and {b} in {a.ring}")
 
     quot, rem = polynomial_division(reduced, b)
     return (quot+main_quot, rem)

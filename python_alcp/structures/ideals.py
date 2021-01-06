@@ -93,7 +93,7 @@ class Quotient(Ring):
                 and cls.baseRing == other.baseRing and cls.ideal == other.ideal)
 
     def __str__(cls):
-        return f"{cls.baseRing}/{cls.ideal}"
+        return f"({cls.baseRing}/{cls.ideal})"
 
     def char(cls):
         if hasattr(cls, "_char"):
@@ -146,7 +146,7 @@ class Quotient(Ring):
             Returns [x] in the case of finite fields
         """
 
-        if cls.ideal.ring.is_polynomial():
+        if cls.baseRing.is_polynomial():
             return cls.build([0,1])
         elif cls.char() > 2:
             return cls.build(2)
@@ -204,7 +204,7 @@ class RingQuotientElement(RingElement):
         return self.reduce_rep(self.val) < other.reduce_rep(other.val)
 
     def __hash__(self):
-        return hash(self.val)
+        return hash((type(self).__name__, self.val))
 
 
 class FieldQuotientElement(RingQuotientElement, FieldElement):
