@@ -205,18 +205,28 @@ class GaussianIntegerElement(EuclideanDomainElement):
     def __eq__(self,other):
         return type(other) is type(self) and self.a==other.a and self.b==other.b
     
-    # WIP
     def __floordiv__(self,other):
         op_typecheck(other,allowed=[type(self)])
-        return type(self)(self.val//other.val)
-    # WIP
+        # Calculate quotient in the complex plane (via conjugate)
+        frac = (self*other.conj(),other*other.conj())
+        # Find sufficiently close element of Z[i]
+        a1,a2 = frac[0].a//frac[1].a,frac[0].a//frac[1].a+1
+        b1,b2 = frac[0].b//frac[1].a,frac[0].b//frac[1].a+1
+        threshold = Zi.phi(other)
+        
+        for a in [a1,a2]:
+            for b in [b1,b2]:
+                c = Zi.build(a,b)
+                if Zi.phi(self-other*c) < threshold:
+                    return c
+        raise RuntimeError("This should never happen.")
+    
     def __truediv__(self,other):
-        op_typecheck(other,allowed=[type(self)])
-        return type(self)(self.val//other.val)
-    # WIP
+        return (self//other)
+    
     def __mod__(self,other):
         op_typecheck(other,allowed=[type(self)])
-        return type(self)(self.val%other.val)
+        return (self - other*(self/other))
         
     def __neg__(self):
         return type(self)(-self.a,-self.b)
