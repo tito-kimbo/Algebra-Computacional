@@ -72,7 +72,10 @@ class EDIdeal(Ideal):
         return self.generator.is_prime()
 
     def __str__(self):
-        return f"{self.generator}{self.ring}"
+        genrepr = str(self.generator)
+        if ' ' in genrepr:
+            genrepr = f"({genrepr})"
+        return f"{genrepr}{self.ring}"
 
 
 @external
@@ -255,7 +258,7 @@ def GetRingQuotient(ring, ideal):
     bases = (RingQuotientElement,)
     return Quotient(f"{ring}/{ideal}", bases, {'baseRing': ring, 'ideal': ideal})
 
-
+@external
 def GetFieldQuotient(ring, ideal):
     bases = (FieldQuotientElement,)
     return FieldQuotient(f"{ring}/{ideal}", bases, {'baseRing': ring, 'ideal': ideal})

@@ -7,7 +7,13 @@ from python_alcp.structures.rings import (
         RingElement,
         EuclideanDomainElement
 )
-from python_alcp.utils import assuming, print_superscript, external, externals
+from python_alcp.utils import (
+        assuming,
+        print_superscript,
+        external,
+        externals,
+        prime_factors
+)
 
 VARS = ["X","Y","Z","T","U","V"] # Could be extended arbitrarily with sub indexing
 
@@ -242,6 +248,22 @@ class PolynomialEDElement(PolynomialRingElement, EuclideanDomainElement):
 
         return R.build(newc)
 
+    def is_primitive_field(self):
+        if not self.is_prime():
+            return False
+        if not type(self).coefRing.is_finite():
+            return False
+
+        F = externals.GetFieldQuotient(type(self), type(self)*self)
+        O = F.order()-1
+        factors = prime_factors(O)
+        x = F.generator()
+
+        for f in factors.keys():
+            if x**(O//f) == F.one:
+                return False
+
+        return True
 
 
 
