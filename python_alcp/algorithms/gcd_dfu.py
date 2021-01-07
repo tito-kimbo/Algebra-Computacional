@@ -39,15 +39,14 @@ def gcd_dfu(f, g, *args):
         quot, re = polynomial_division(r[-2] * lc, r[-1], pseudo = True)
         
         # Lastly, we take the primitive part of the polynomial
-        if re.deg() > 1:
-            re = re.primitive_part()
+        re = re.primitive_part()
 
         r.append(re)
         #n.append(r[-1].deg())
 
     # If we are calculating the gcd of two elements, we process the next element
     if len(args) > 0:
-        return gcd(r[-2], *args)
+        return gcd_dfu(r[-2], *args)
     else:
     #If not, we just return the normal form of the result
         return r[-2].normal()
