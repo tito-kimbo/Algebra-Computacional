@@ -196,6 +196,8 @@ class RingElement():
 
     def __pow__(self, other):
         if type(other) == int:
+            if other < 0:
+                return fast_exponentiation(self.inverse(), -other)
             return fast_exponentiation(self, other)
 
     @abstractmethod

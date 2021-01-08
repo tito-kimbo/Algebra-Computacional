@@ -1,3 +1,8 @@
+import random
+
+from python_alcp.algorithms.discrete_log import discrete_log
+from python_alcp.utils import externals
+
 def modsqrt(e):
     """
         Square root in a finite field.
@@ -16,11 +21,12 @@ def modsqrt(e):
     p = F.char()
     q = F.order()
     
-    rho = None
-    for elem in F.elements():
-        if elem != F.zero and not is_quadratic(elem):
-            rho = elem
-            break
+
+    elems = list(F.elements())
+    elems.remove(F.zero)
+    rho = random.choice(elems)
+    while is_quadratic(rho):
+        rho = random.choice(elems)
 
     s = q-1
     t = 0
@@ -44,13 +50,122 @@ def modsqrt(e):
         raise AssertionError("Could not find sqrt of {e} in {type(e)}. Is the field correctly constructed?")
     return [res,-res]
 
+def modroot(r, e):
+    """
+        r-th root in a finite field.
+        Adleman-Manders-Miller algorithm
+        See https://arxiv.org/pdf/1111.4877.pdf
+    """
+    
+    F = type(e)
 
+    Z = externals.Z
+    eea = externals.eea
+
+    if e == F.zero:
+        return [e]
+
+    p = F.char()
+    q = F.order()
+
+
+    if (q-1) % r != 0:
+        # Can't use the algorithm, fall back to discrete log
+        
+        return modroot_dl(r,e)
+
+    else:
+        if e**((q-1)//r) != F.one:
+           res =  None 
+        else:
+            # Actual algorithm
+
+            # Find an rth non-residue rho
+            elems = list(F.elements())
+            elems.remove(F.zero)
+            rho = random.choice(elems)
+            while rho**((q-1)//r) == F.one:
+                rho = random.choice(elems)
+
+            # Find s,t such that q-1 = s*r^t
+            s = q-1
+            t = 0
+            while s % r == 0:
+                s //= r
+                t += 1
+
+            if not eea(Z(r), Z(s))[0].is_unit():
+                # Can't use algorithm, fall back to dl
+                return modroot_dl(r,e)
+
+            alpha = 0
+            while (r*alpha - 1) % s != 0:
+                alpha += 1
+
+            #print(s,t)
+            #print(alpha)
+
+            a = rho**((r**(t-1))*s)
+            b = e**(r*alpha-1)
+            c = rho**s
+            h = 1
+            for i in range(1,t):
+                d = b**(r**(t-1-i))
+                if d == F.one:
+                    j = 0
+                else:
+                    #print(a,d)
+                    j = -discrete_log(a,d)
+                    #print(j)
+                b = b*((c**r)**j)
+                h = h*(c**j)
+                c = c**r
+
+            res = e**alpha * h
+
+            if res is None:
+                return None
+            else:
+                #print(rho)
+                #print(r,s,t)
+                a = rho**(s*(r**(t-1)))
+                #print(a)
+                #print([a**(i*r) for i in range(0,r)])
+                return [res*(a**i) for i in range(0,r)]
+    
 def is_quadratic(e):
     """
         Test if an element of a finite field is a quadratic residue
     """
     return e == type(e).zero or e**((type(e).order()-1)//2) == type(e).one
 
+
+def modroot_dl(r,e):
+    F = type(e)
+
+    if e == F.zero:
+        return [e]
+
+    p = F.char()
+    q = F.order()
+
+    Z = externals.Z
+    eea = externals.eea
+    x = F.generator()
+
+    g, s, t = eea(Z(r), Z(q-1))
+
+    if g.is_unit():
+        res = e**(s / g).val
+
+    else:
+        dl = discrete_log(x,e)
+        if dl is None or dl % g.val != 0:
+            return None
+        else:
+            res = x**((dl//g.val) * s.val)
+
+    return [res*(x**(i*(q-1)//g.val)) for i in range(g.val)]
 
 def shifting_root(n, e, b):
     """

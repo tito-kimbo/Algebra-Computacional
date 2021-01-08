@@ -169,6 +169,9 @@ class Externals():
 
 externals = Externals()
 
-def external(elem):
-    externals.__setattr__(elem.__name__, elem)
+def external(elem, name=None):
+    if name is not None:
+        externals.__setattr__(name, elem)
+    else:
+        externals.__setattr__(elem.__name__, elem)
     return elem

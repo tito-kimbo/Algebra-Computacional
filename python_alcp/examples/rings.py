@@ -144,7 +144,7 @@ class Integers(EuclideanDomain):
 
 
 Z = Integers("\N{DOUBLE-STRUCK CAPITAL Z}", (IntElement,), {})
-external(Z)
+external(Z, name="Z")
 
 
 
@@ -262,4 +262,4 @@ class GaussianIntegerElement(EuclideanDomainElement):
 
 
 Zi = GaussianIntegers("\N{DOUBLE-STRUCK CAPITAL Z}[i]", (GaussianIntegerElement,), {})
-external(Zi)
+external(Zi, name="Zi")
