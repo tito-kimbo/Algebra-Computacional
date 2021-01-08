@@ -84,7 +84,7 @@ def modroot(r, e):
             elems = list(F.elements())
             elems.remove(F.zero)
             rho = random.choice(elems)
-            while rho**((q-1)//r) == F.one:
+            while (rho**((q-1)//r)).val.deg() == 0:# == F.one:
                 rho = random.choice(elems)
 
             # Find s,t such that q-1 = s*r^t
@@ -105,7 +105,9 @@ def modroot(r, e):
             #print(s,t)
             #print(alpha)
 
-            a = rho**((r**(t-1))*s)
+            #print(rho)
+
+            a = rho**(s*r**(t-1))
             b = e**(r*alpha-1)
             c = rho**s
             h = 1
