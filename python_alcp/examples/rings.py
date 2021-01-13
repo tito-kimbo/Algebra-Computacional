@@ -99,10 +99,10 @@ class IntElement(EuclideanDomainElement):
 
     def is_prime(self):
         for p in primes():
-            if self.val % p == 0:
-                return False
             if p**2 > self:
                 return True
+            if self.val % p == 0:
+                return False
 
     def is_unit(self):
         return self.val == 1 or self.val == -1
