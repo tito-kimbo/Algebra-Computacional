@@ -25,6 +25,38 @@ monomials are expressed over the same variables.
 def divides_monomial(m1,m2):
     return all(m1.deg[i] < m2.deg[i]  for i in range(len(m1.deg)))
 
+def deg_diff(m1,m2):
+    return (m1.deg[i]-m2.deg[i] for i in range(len(m1.deg)))
+
+def total_deg(m):
+    return sum(m.deg)
+
+########### MONOMIAL ORDERS ##############
+
+def lt_lex(m1,m2):
+    dd = deg_diff(m1,m2)
+    i=0
+    while i < len(dd) and dd[i] == 0:
+        i += 1
+    return i < len(dd) and dd[i]<0
+
+def lt_reverse_lex(m1,m2):
+    dd = deg_diff(m1,m2)
+    i=len(dd)-1
+    while i>=0 and dd[i]==0:
+        i -= 1
+    return i>=0 and dd[i]>0
+
+def lt_graded_lex(m1,m2):
+    d1,d2 = total_deg(m1),total_deg(m2)
+    return d1 < d2 or (d1 == d2 and lt_lex(m1,m2)) 
+
+def lt_graded_reverse_lex(m1,m2):
+    d1,d2 = total_deg(m1),total_deg(m2)
+    return d1 < d2 or (d1 == d2 and lt_reverse_lex(m1,m2))
+    
+##########################################
+
 class Monomial():
     def __init__(self, deg, vars):
         # TYPECHECKING    
@@ -47,6 +79,9 @@ class Monomial():
         
     def __eq__(self,other):
         return self.deg == other.deg
+       
+    def __lt__(self,other):
+        return lt_graded_lex(self,other)
     
     def __hash__(self):
         return hash((type(self).__name__, self.deg))
@@ -58,9 +93,7 @@ class MultivariatePolynomial(RingElement):
     
     def __init__(self,coefs,monomials=[],is_dict=False):
         # TYPECHECKING IS IMPORTANT HERE
-        if is_dict:
-            self.coefs = coefs
-        else:
+        if not is_dict:
             if type(coefs) != list:
                 coefs = [coefs]
             if monomials == []:
@@ -69,11 +102,22 @@ class MultivariatePolynomial(RingElement):
             
             if not isinstance(coefs[0],self.coefRing):
                 coefs = [self.coefRing(x) for x in coefs]
-            self.coefs = dict(zip(monomials,coefs))
+            coefs = dict(zip(monomials,coefs))    
+        self.coefs = {k : coefs[k] for k in sorted(coefs,reverse=True)}
     
     def deg(self):
         monomials = self.coefs.keys()
         return (max([x.deg[i] for x in monomials]) for i in range(len(monomials[0].deg)))
+    
+    def lt(self):
+        k = next(iter(self.coefs))
+        return (k,self.coefs[k])
+    
+    def lm(self):
+        return next(iter(self.coefs))
+    
+    def lc(self):
+        return self.coefs[next(iter(self.coefs))]
     
     def __add__(self,other):
         c = dict(self.coefs)
@@ -110,18 +154,12 @@ class MultivariatePolynomial(RingElement):
         return type(self)([-x for x in self.coefs],self.monomials)
 
     def __floordiv__(self, other):
-        # REALLY HARD
-        if not hasattr(other, "val") or not hasattr(other.val, "__iter__"):
-            other = type(self)(other)
-        quot, rem = polynomial_division(self, other)
-        return quot
+        # SOMEWHAT HARD
+        raise NotImplementedError()
 
     def __mod__(self, other):
-        # REALLY HARD
-        if not hasattr(other, "val") or not hasattr(other.val, "__iter__"):
-            other = type(self)(other)
-        quot, rem = polynomial_division(self, other)
-        return rem
+        # SOMEWHAT HARD
+        raise NotImplementedError()
 
                 
     def __eq__(self,other):
