@@ -23,7 +23,7 @@ monomials are expressed over the same variables.
 :m2 second monomial
 """
 def divides_monomial(m1,m2):
-    return all(m1.deg[i] < m2.deg[i]  for i in range(len(m1.deg)))
+    return all(m1.deg[i] <= m2.deg[i]  for i in range(len(m1.deg)))
 
 def deg_diff(m1,m2):
     return (m1.deg[i]-m2.deg[i] for i in range(len(m1.deg)))
@@ -75,7 +75,10 @@ class Monomial():
         return Monomial(d,self.vars)
     
     def __truediv__(self,other):
-        pass
+        if divides_monomial(other,self):
+            return Monomial(deg_diff(self,other),self.vars)
+        else:
+            raise ValueError('Invalid division.')
         
     def __eq__(self,other):
         return self.deg == other.deg
@@ -88,6 +91,46 @@ class Monomial():
     
     def is_zero(self):
         return all(x == 0 for x in self.deg)
+
+
+def _tuple_div(t1,t2):
+    return tuple([t1[i]/t2[i] for i in range(len(t1))])
+
+def _term_to_poly(t,p_type):
+    return p_type({t[0] : t[1]},is_dict=True)
+
+def _choose_lt_divisor(p,F):
+    p_lt = p.lt()
+    f_lt = [f.lt() for f in F]
+    idx = 0
+    while idx<len(F) and not divides_monomial(f_lt[idx][0], p_lt[0]):
+        idx += 1
+    return idx
+
+"""
+Returns the quotient and modulo of p/F in reduced normal form.
+
+:p dividend polynomial
+:F polynomial or list of polynomials to use as divisors
+"""
+def div_poly_RNF(p,F):
+    if type(F) != list:
+        F = [F]
+    h=type(p)(p.coefs,is_dict=True)
+    A=[type(p)(0) for _ in F]
+    r=type(p)(0)
+    while h != type(p).zero:
+        l = _choose_lt_divisor(h,F)
+        while l < len(F):
+            t = _tuple_div(h.lt(),F[l].lt())
+            aux_poly = _term_to_poly(t,type(p))
+            A[l] = A[l] + aux_poly
+            h = h - aux_poly*F[l]
+            l = _choose_lt_divisor(h,F)
+        aux_poly = _term_to_poly(h.lt(),type(p))
+        r=r+aux_poly
+        h =h-aux_poly
+    return (A,r)
 
 class MultivariatePolynomial(RingElement):
     
@@ -103,7 +146,11 @@ class MultivariatePolynomial(RingElement):
             if not isinstance(coefs[0],self.coefRing):
                 coefs = [self.coefRing(x) for x in coefs]
             coefs = dict(zip(monomials,coefs))    
-        self.coefs = {k : coefs[k] for k in sorted(coefs,reverse=True)}
+        
+        # Reduce the representation by removing 0s
+        self.coefs = {k : coefs[k] for k in sorted(coefs,reverse=True) if coefs[k] != self.coefRing.zero}
+        if len(self.coefs)==0:
+            self.coefs = {Monomial((0 for _ in range(len(self.vars))),self.vars): self.coefRing.zero}
     
     def deg(self):
         monomials = self.coefs.keys()
@@ -153,13 +200,14 @@ class MultivariatePolynomial(RingElement):
     def __neg__(self):
         return type(self)([-x for x in self.coefs],self.monomials)
 
-    def __floordiv__(self, other):
-        # SOMEWHAT HARD
-        raise NotImplementedError()
+    def __truediv__(self,other):
+        return div_poly_RNF(self,other)[0][0]
+
+    #def __floordiv__(self, other):
+    #    return div_poly_RNF(self,other)[0]
 
     def __mod__(self, other):
-        # SOMEWHAT HARD
-        raise NotImplementedError()
+        return div_poly_RNF(self,other)[1]
 
                 
     def __eq__(self,other):
