@@ -15,10 +15,20 @@ from python_alcp.utils import (
         prime_factors
 )
 
+"""
+Returns True if m1 divides m2. False otherwise. Assumes the
+monomials are expressed over the same variables.
+
+:m1 first monomial
+:m2 second monomial
+"""
+def divides_monomial(m1,m2):
+    return all(m1.deg[i] < m2.deg[i]  for i in range(len(m1.deg)))
+
 class Monomial():
     def __init__(self, deg, vars):
-        # TYPECHECKING
-        self.deg = deg
+        # TYPECHECKING    
+        self.deg = tuple(deg)
         self.vars = vars
     
     def __repr__(self):
@@ -31,50 +41,73 @@ class Monomial():
         # We assume variables match!
         d = [self.deg[i]+other.deg[i] for i in range(len(self.deg))]
         return Monomial(d,self.vars)
+    
+    def __truediv__(self,other):
+        pass
         
     def __eq__(self,other):
         return self.deg == other.deg
+    
+    def __hash__(self):
+        return hash((type(self).__name__, self.deg))
+    
+    def is_zero(self):
+        return all(x == 0 for x in self.deg)
 
 class MultivariatePolynomial(RingElement):
     
-    def __init__(self,coefs,monomials=[]):
+    def __init__(self,coefs,monomials=[],is_dict=False):
         # TYPECHECKING IS IMPORTANT HERE
-        if type(coefs) != list:
-            coefs = [coefs]
-        
-        if not isinstance(coefs[0],self.coefRing):
-            coefs = [self.coefRing(x) for x in coefs]
-        self.coefs = coefs
-        self.monomials = monomials
+        if is_dict:
+            self.coefs = coefs
+        else:
+            if type(coefs) != list:
+                coefs = [coefs]
+            if monomials == []:
+                v = self.vars
+                monomials = [Monomial((0 for _ in range(len(v))),v)]# WE NEED TO CREATE THE "ZERO" MONOMIAL
+            
+            if not isinstance(coefs[0],self.coefRing):
+                coefs = [self.coefRing(x) for x in coefs]
+            self.coefs = dict(zip(monomials,coefs))
     
     def deg(self):
-        return (max([x.deg[i] for x in self.monomials]) for i in range(len(self.monomials[0].deg)))
+        monomials = self.coefs.keys()
+        return (max([x.deg[i] for x in monomials]) for i in range(len(monomials[0].deg)))
     
     def __add__(self,other):
-        # WE NEED TO MATCH MONOMIALS
-        return type(self)([x+y for x,y in zip_longest(self.val,other.val,fillvalue=type(self).coefRing.zero)])
+        c = dict(self.coefs)
+        for k in other.coefs:
+            if k in c:
+                c[k] += other.coefs[k]
+            else:
+                c[k] = other.coefs[k]
+        return type(self)(c,is_dict=True)
 
     def __sub__(self,other):
-        # WE NEED TO MATCH MONOMIALS
-        if not hasattr(other, "val") or not hasattr(other.val, "__iter__"):
-            other = type(self)(other)
-        return type(self)([x-y for x,y in zip_longest(self.val,other.val,fillvalue=type(self).coefRing.zero)])
+        c = dict(self.coefs)
+        for k in other.coefs:
+            if k in c:
+                c[k] -= other.coefs[k]
+            else:
+                c[k] = -other.coefs[k]
+        return type(self)(c,is_dict=True)
     
     # Convolutional product
     def inner_mul(self,other):
-        # PRODUCT IS TOUGH 
-        if not hasattr(other, "val") or not hasattr(other.val, "__iter__"):
-            other = type(self)(other)
-        R = type(self).coefRing
-        newcs = [R.zero] * (self.deg() + other.deg() + 1)
-        for i,v in enumerate(self.val):
-            for j,w in enumerate(other.val):
-                newcs[i+j] += v*w
-
-        return type(self)(newcs)
+        c = dict()
+        for k1,v1 in self.coefs.items():
+            for k2,v2 in other.coefs.items():
+                k = k1*k2
+                v = v1*v2
+                if k in c:
+                    c[k] += v
+                else:
+                    c[k] = v
+        return type(self)(c,is_dict=True)
 
     def __neg__(self):
-        return MultivariatePolynomial([-x for x in self.coefs],self.monomials)
+        return type(self)([-x for x in self.coefs],self.monomials)
 
     def __floordiv__(self, other):
         # REALLY HARD
@@ -93,43 +126,42 @@ class MultivariatePolynomial(RingElement):
                 
     def __eq__(self,other):
         # Monomials match and have same coefficients
-        return hasattr(other, "val") and self.val == other.val
+        return hasattr(other, "val") and self.coefs == other.coefs
     
     def __str__(self):
-        # TBD
-        return self.coefs+self.monomials
-
-
+        s = ''
+        for k,v in self.coefs.items():
+            if k.is_zero():
+                s = s + ''.join([str(v), ' + '])
+            else:
+                s = s + ''.join([str(v),str(k), ' + '])
+        s = s[:-3:]
+        return s
     
-
+    def __repr__(self):
+        return self.__str__()
+        
     def inverse(self):
+        # This does not work
         assuming(self.is_unit(), "Can't invert non-unit")
-        return type(self)(self.val[0].inverse())
-
-    def der(self):
-        # derivative
-        new_val = []
-        for i,c in enumerate(self.val[1:]):
-            if c != type(self).zero:
-                new_val.append((i+1)*c)
-        return type(self)(new_val)
-
-
+        return type(self)(self.coefs[0].inverse())
+    
     def is_unit(self):
+        # This does not work
         return self.deg() == 0 and self.coefs[0].is_unit()
-
+        
     def normal(self):
         raise NotImplementedError()
-    
+        
     def content(self):
         raise NotImplementedError()
-
+        
     def primitive_part(self):
         raise NotImplementedError()
-
+        
     def is_prime(self):
         raise NotImplementedError()
-
+        
     def __hash__(self):
         return hash((type(self).__name__, self.coefs, self.monomials))
 
