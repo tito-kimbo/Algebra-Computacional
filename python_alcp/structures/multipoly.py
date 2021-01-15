@@ -26,7 +26,7 @@ def divides_monomial(m1,m2):
     return all(m1.deg[i] <= m2.deg[i]  for i in range(len(m1.deg)))
 
 def deg_diff(m1,m2):
-    return (m1.deg[i]-m2.deg[i] for i in range(len(m1.deg)))
+    return tuple([m1.deg[i]-m2.deg[i] for i in range(len(m1.deg))])
 
 def total_deg(m):
     return sum(m.deg)
@@ -93,10 +93,10 @@ class Monomial():
         return all(x == 0 for x in self.deg)
 
 
-def _tuple_div(t1,t2):
+def tuple_div(t1,t2):
     return tuple([t1[i]/t2[i] for i in range(len(t1))])
 
-def _term_to_poly(t,p_type):
+def term_to_poly(t,p_type):
     return p_type({t[0] : t[1]},is_dict=True)
 
 def _choose_lt_divisor(p,F):
@@ -122,12 +122,12 @@ def div_poly_RNF(p,F):
     while h != type(p).zero:
         l = _choose_lt_divisor(h,F)
         while l < len(F):
-            t = _tuple_div(h.lt(),F[l].lt())
-            aux_poly = _term_to_poly(t,type(p))
+            t = tuple_div(h.lt(),F[l].lt())
+            aux_poly = term_to_poly(t,type(p))
             A[l] = A[l] + aux_poly
             h = h - aux_poly*F[l]
             l = _choose_lt_divisor(h,F)
-        aux_poly = _term_to_poly(h.lt(),type(p))
+        aux_poly = term_to_poly(h.lt(),type(p))
         r=r+aux_poly
         h =h-aux_poly
     return (A,r)
@@ -249,7 +249,7 @@ class MultivariatePolynomial(RingElement):
         raise NotImplementedError()
         
     def __hash__(self):
-        return hash((type(self).__name__, self.coefs, self.monomials))
+        return hash((type(self).__name__, str(self.coefs)))
 
 # Polynomials over integral domains
 class MultivariatePolynomialRing(Ring):
