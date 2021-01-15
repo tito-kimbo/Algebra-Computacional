@@ -28,7 +28,6 @@ def gcd_dfu(f, g, *args):
 
     R =  f.ring
     r = [f,g]
-    #n = [f.deg(), g.deg()]
 
     while r[-1] != R.zero:
         # Take the leading coefficient of r[-1] and power it to the
@@ -42,7 +41,6 @@ def gcd_dfu(f, g, *args):
         re = re.primitive_part()
 
         r.append(re)
-        #n.append(r[-1].deg())
 
     # If we are calculating the gcd of two elements, we process the next element
     if len(args) > 0:
