@@ -26,7 +26,9 @@ En este documento especificamos los algoritmos hay en el repositorio
 
 * Mcd en un D.F.U.
 
-   En la carpeta `algorithms`, en el fichero `gcd_dfu.py`, es la función `gcd_dfu`
+   <b>Teoría</b>: página 23, Algoritmo 2.1.10 de [ICA] 
+   
+   <b>Algoritmo</b>: En la carpeta `algorithms`, en el fichero `gcd_dfu.py`, es la función `gcd_dfu`
 
 
 * Inverso de un elemento en un cuerpo finito.
