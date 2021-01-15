@@ -19,20 +19,35 @@ from python_alcp.utils import (
 Returns True if m1 divides m2. False otherwise. Assumes the
 monomials are expressed over the same variables.
 
-:m1 first monomial
-:m2 second monomial
+:m1 monomial
+:m2 monomial
 """
 def divides_monomial(m1,m2):
     return all(m1.deg[i] <= m2.deg[i]  for i in range(len(m1.deg)))
 
+"""
+Returns a tuple with the differences of the degrees of two monomials.
+
+:m1 monomial
+:m2 monomial
+"""
 def deg_diff(m1,m2):
     return tuple([m1.deg[i]-m2.deg[i] for i in range(len(m1.deg))])
 
+
+"""
+Returns the total degree of a mononial.
+
+:m monomial
+"""
 def total_deg(m):
     return sum(m.deg)
 
 ########### MONOMIAL ORDERS ##############
 
+"""
+Less than operation for the lexicographic monomial order.
+"""
 def lt_lex(m1,m2):
     dd = deg_diff(m1,m2)
     i=0
@@ -40,6 +55,9 @@ def lt_lex(m1,m2):
         i += 1
     return i < len(dd) and dd[i]<0
 
+"""
+Less than operation for the reverse lexicographic monomial order.
+"""
 def lt_reverse_lex(m1,m2):
     dd = deg_diff(m1,m2)
     i=len(dd)-1
@@ -47,16 +65,25 @@ def lt_reverse_lex(m1,m2):
         i -= 1
     return i>=0 and dd[i]>0
 
+"""
+Less than operation for the graded lexicographic monomial order.
+"""
 def lt_graded_lex(m1,m2):
     d1,d2 = total_deg(m1),total_deg(m2)
     return d1 < d2 or (d1 == d2 and lt_lex(m1,m2)) 
 
+"""
+Less than operation for the graded reverse lexicographic monomial order.
+"""
 def lt_graded_reverse_lex(m1,m2):
     d1,d2 = total_deg(m1),total_deg(m2)
     return d1 < d2 or (d1 == d2 and lt_reverse_lex(m1,m2))
     
 ##########################################
 
+"""
+Class representing a Monomial over a set of variables.
+"""
 class Monomial():
     def __init__(self, deg, vars):
         # TYPECHECKING    
@@ -92,13 +119,24 @@ class Monomial():
     def is_zero(self):
         return all(x == 0 for x in self.deg)
 
-
+"""
+Utility functon that divides two tuples element-by-element.
+"""
 def tuple_div(t1,t2):
     return tuple([t1[i]/t2[i] for i in range(len(t1))])
 
+"""
+Utility functio to turn a term of a polynomial into a 
+"""
 def term_to_poly(t,p_type):
     return p_type({t[0] : t[1]},is_dict=True)
 
+"""
+Chooses a polynomial from F such that its leading term divides the leading term of p.
+
+:p  polynomial
+:F  list of polynomials in the same polynomial ring as p
+"""
 def _choose_lt_divisor(p,F):
     p_lt = p.lt()
     f_lt = [f.lt() for f in F]
@@ -132,6 +170,9 @@ def div_poly_RNF(p,F):
         h =h-aux_poly
     return (A,r)
 
+"""
+Class representing a multivariate polynomial.
+"""
 class MultivariatePolynomial(RingElement):
     
     def __init__(self,coefs,monomials=[],is_dict=False):
@@ -152,17 +193,21 @@ class MultivariatePolynomial(RingElement):
         if len(self.coefs)==0:
             self.coefs = {Monomial((0 for _ in range(len(self.vars))),self.vars): self.coefRing.zero}
     
+    """Returns the multidegree of the polynomial."""
     def deg(self):
         monomials = self.coefs.keys()
         return (max([x.deg[i] for x in monomials]) for i in range(len(monomials[0].deg)))
     
+    """Returns the leading term of the polynomial as a tuple."""
     def lt(self):
         k = next(iter(self.coefs))
         return (k,self.coefs[k])
     
+    """Returns the leading monomial of the polynomial."""
     def lm(self):
         return next(iter(self.coefs))
     
+    """Returns the leading coefficiente of the polynomial."""
     def lc(self):
         return self.coefs[next(iter(self.coefs))]
     
@@ -184,7 +229,7 @@ class MultivariatePolynomial(RingElement):
                 c[k] = -other.coefs[k]
         return type(self)(c,is_dict=True)
     
-    # Convolutional product
+    """Product of two polynomials."""
     def inner_mul(self,other):
         c = dict()
         for k1,v1 in self.coefs.items():
@@ -202,9 +247,6 @@ class MultivariatePolynomial(RingElement):
 
     def __truediv__(self,other):
         return div_poly_RNF(self,other)[0][0]
-
-    #def __floordiv__(self, other):
-    #    return div_poly_RNF(self,other)[0]
 
     def __mod__(self, other):
         return div_poly_RNF(self,other)[1]
@@ -252,6 +294,9 @@ class MultivariatePolynomial(RingElement):
         return hash((type(self).__name__, str(self.coefs)))
 
 # Polynomials over integral domains
+"""
+Class representing a multivariate polynomial ring.
+"""
 class MultivariatePolynomialRing(Ring):
     
     def __eq__(cls, other):
