@@ -113,6 +113,9 @@ def all_factors(n: int):
         return reduce(int.__mul__, nums, 1)
     return set((mul(c) for r in range(1,len(facts)) for c in combinations(facts, r)))
 
+def int_gcd(a: int, b: int):
+    return a if b == 0 else int_gcd(b, a%b)
+
 
 
 ######## Double-add algorithm #########
