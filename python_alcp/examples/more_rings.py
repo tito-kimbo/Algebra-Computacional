@@ -41,7 +41,10 @@ class RationalElement(FieldElement):
         return self.__str__()
 
     def __str__(self):
-        return f"{self.num}/{self.den}"
+        if self.den == 1:
+            return f"{self.num}"
+        else:
+            return f"{self.num}/{self.den}"
 
     @try_op()
     def __add__(self,other):
