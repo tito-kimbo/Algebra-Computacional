@@ -94,7 +94,7 @@ class Monomial():
         return str(self)
     
     def __str__(self):
-        return f''.join([''.join([str(y),'^',str(x)]) for x,y in zip(self.deg, self.vars) if x > 0])
+        return ''.join([''.join([str(y),print_superscript(x)]) for x,y in zip(self.deg, self.vars) if x > 0])
         
     def __mul__(self,other):
         # We assume variables match!
@@ -257,6 +257,10 @@ class MultivariatePolynomial(RingElement):
         return hasattr(other, "val") and self.coefs == other.coefs
     
     def __str__(self):
+
+        if self == type(self).zero:
+            return "0"
+        return " + ".join([f"{v}{'' if k.is_zero() else k}" for k,v in self.coefs.items() if v != type(v).zero])
         s = ''
         for k,v in self.coefs.items():
             if k.is_zero():
