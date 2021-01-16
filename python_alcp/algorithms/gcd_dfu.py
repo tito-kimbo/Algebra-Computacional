@@ -28,21 +28,22 @@ def gcd_dfu(f, g, *args):
 
     R =  f.ring
     r = [f,g]
-    #n = [f.deg(), g.deg()]
+    n = [f.deg(), g.deg()]
 
     while r[-1] != R.zero:
         # Take the leading coefficient of r[-1] and power it to the
         # proper exponent
         lc = r[-1].coefs[-1]
+        delta = n[-2]-n[-1]+1
 
         # Then, we take the remainder of the division
-        quot, re = polynomial_division(r[-2] * lc, r[-1], pseudo = True)
+        quot, re = polynomial_division(r[-2] * (lc**delta), r[-1], pseudo = True)
         
         # Lastly, we take the primitive part of the polynomial
         re = re.primitive_part()
 
         r.append(re)
-        #n.append(r[-1].deg())
+        n.append(r[-1].deg())
 
     # If we are calculating the gcd of two elements, we process the next element
     if len(args) > 0:

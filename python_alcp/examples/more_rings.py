@@ -1,4 +1,6 @@
+from decimal import Decimal
 from math import floor, sqrt
+from itertools import zip_longest
 
 from python_alcp.utils import (
     assuming,
@@ -16,6 +18,7 @@ from python_alcp.structures.rings import Field, FieldElement
 class RationalElement(FieldElement):
 
     def __init__(self,num,den = 1):
+
 
         while hasattr(num, "val"):
             num = num.val
