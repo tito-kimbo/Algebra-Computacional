@@ -321,6 +321,14 @@ def GetPolynomials(ring, var = None):
             chain = 0
     else:
         chain = 0
+
+    if ring.is_polynomial():
+        if hasattr(ring, "vars"):
+            vars = ring.vars
+        else:
+            vars = [ring.var]
+        return externals.GetMultiPoly(ring.coefRing, vars+[var])
+
     attrs = {"coefRing": ring, "var": var, "chain": chain}
     if ring.is_field():
         return PolynomialED(f"{ring}[{var}]", (PolynomialEDElement,), attrs)

@@ -331,6 +331,7 @@ class MultivariatePolynomialRing(Ring):
     def monomial(cls,deg):
         return Monomial(deg,cls.vars)
         
+@external
 def GetMultiPoly(ring, vars):
     attrs = {"coefRing": ring, "vars": vars}
     return MultivariatePolynomialRing(f"{ring}[{vars}]", (MultivariatePolynomial,), attrs)
