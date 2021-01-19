@@ -2,9 +2,6 @@ from python_alcp.structures.rings import EuclideanDomain, IntegralDomain, Unique
 from python_alcp.structures.polynomials import PolynomialRing, polynomial_division
 from python_alcp.algorithms.divisibility import gcd
 
-#def pseudo_division(f: PolynomialRing.Element, g: PolynomialRing.Element):
-
-
 def gcd_dfu(f, g, *args):
     """
         f and g must be polynomials with coefficients in a UFD
