@@ -183,7 +183,6 @@ class PolynomialRingElement(RingElement):
         if nf == self.val[-1]:
             return self
         
-        # If not, divide by leading coef
         else:
             div = (self.val[-1] / nf)
             poly = type(self)([c / div for c in self.val])

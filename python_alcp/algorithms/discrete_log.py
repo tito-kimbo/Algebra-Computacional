@@ -16,7 +16,7 @@ def discrete_log(a,h):
         raise ValueError('Both elements must belong to the same ring') 
     N = a.ring.order()-1 # Order of the multiplicative group
     m = int(ceil(sqrt(N)))
-    # Defining a hash/ordering might make this quicker?
+    
     alpha = [a**j for j in range(m)]
     # order of an element divides order of the (multiplicative) group
     a_inv_m = a**(N-m)
