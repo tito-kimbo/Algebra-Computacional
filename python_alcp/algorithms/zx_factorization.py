@@ -141,7 +141,7 @@ def zx_factorization(f):
 
     
     for i in range(n_lifts):
-        # Hensel lifting from i to i+1
+        # Hensel lifting from p**k to p**2k
 
         RX = f_.ring
         RX.setRepr("reduced")
@@ -153,6 +153,7 @@ def zx_factorization(f):
 
             g = factors[j]
             h = reduce(RX.Element.__mul__, factors[j+1:], RX.one)
+            prod = g*h
 
             gc, s, t = eea(g, h)
 
@@ -162,7 +163,7 @@ def zx_factorization(f):
 
             assuming(gc.is_unit(), "Factorization failed")
 
-            nf, ng, nh, ns, nt = hensel_lifting(f_, g, h, s, t)
+            nf, ng, nh, ns, nt = hensel_lifting(prod, g, h, s, t)
 
             newfactors.append(ng)
 
