@@ -27,9 +27,6 @@ def gcd_dfu(f, g, *args):
     r = [f,g]
 
     while r[-1] != R.zero:
-        # Take the leading coefficient of r[-1] and power it to the
-        # proper exponent
-
         # Then, we take the remainder of the division
         quot, re = polynomial_division(r[-2], r[-1], pseudo = True)
         
