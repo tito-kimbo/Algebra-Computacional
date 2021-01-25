@@ -248,6 +248,80 @@ def berlekamp_cantor_zassenhaus(f):
 
 
 
+def equal_degree_factorization(f, e):
+    """
+        Factorizes a product of irreducible polynomials of degree e
+    """
+
+    # Implements Remark 2.3.27
+
+    # R = ring of coefficients, RX = polynomial ring
+    R = f.ring.coefRing
+    RX = f.ring
+
+    q = R.order()
+    
+    # There is one operation which is different in characteristic 2
+    if q % 2 == 0:
+        r = int(log2(q))
+        def op(x):
+            return sum([x**(2*i*e) for i in range(r-1)], x.ring.zero)
+    else:
+        def op(x):
+            return x**((q**e-1)//2) - x.ring.one
+
+
+    # Compute a basis of Ker(Phi_f)
+    hs = ker_phi_basis(f)
+
+    # s must be the number of factors
+    s = len(hs)
+
+    # Store factors in result
+    result = [f]
+
+    # Look for factors until we have found all
+    while len(result) < s:
+        g = random.choice(result)
+        while g.deg() <= 1:
+            g = random.choice(result)
+
+        # Construct a random element of Ker(Phi)
+        h = RX.zero
+        while h == RX.zero:
+            cs = random.sample(list(R.elements()), s)
+            h = sum([RX.build([a])*b for a,b in zip(cs,hs)], RX.zero)
+
+        w = gcd(g, op(h)).normal()
+
+        if w != RX.one and w != g:
+            # w is a nontrivial factor of g
+            result.remove(g)
+            result.append(w.primitive_part())
+            result.append((g//w).primitive_part())
+
+    return result
+
+
+def multistage_factorization(f):
+    """
+        Factorizes a polynomial with coefficients in Fq
+        by applying SDF -> DDF -> EDF
+    """
+
+    res = {}
+    sdf = squarefree_decomposition(f)
+
+    for k,v in sdf.items():
+        ddf = distinct_degree_factorization(v)
+        for e,p in ddf.items():
+            factors = equal_degree_factorization(p,e)
+            for f in factors:
+                res[f] = k
+
+    return res
+
+
 def _gaussian_elimination(B, M, R):
     """
         Note: modifies B and M in place

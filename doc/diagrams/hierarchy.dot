@@ -2,11 +2,17 @@ digraph hierarchy {
 	rankdir = "BT";
 	node [shape = "box"];
 
-	Field -> EuclideanDomain -> IntegralDomain -> Ring;
-	FieldQuotient -> BaseQuotient;
-	RingQuotient -> BaseQuotient;
-	FieldQuotient -> Field;
-	RingQuotient -> Ring;
-	PolynomialRing -> IntegralDomain;
 	Z -> EuclideanDomain;
+	"Z[i]" -> EuclideanDomain;
+	Q -> Field;
+	Field -> EuclideanDomain -> UniqueFactorizationDomain -> IntegralDomain -> Ring;
+	FieldQuotient -> Quotient -> Ring;
+	FieldQuotient -> Field;
+	PolynomialED -> PolynomialRing -> Ring;
+	MultivariatePolynomials -> Ring;
+    IdealED -> Ideal;
+	Ideal -> Quotient [style = "dashed"];
+	IdealED -> FieldQuotient [style = "dashed"];
+	Monomial -> MultivariatePolynomials [style = "dashed"];
+	FiniteField -> FieldQuotient;
 }

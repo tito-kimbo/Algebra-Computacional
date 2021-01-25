@@ -151,6 +151,8 @@ class RingQuotientElement(RingElement):
     """ A quotient which has a ring structure """
 
     def __init__(self, val):
+        while hasattr(val, "val"):
+            val = val.val
         return super().__init__(self.reduce_rep(self.baseRing(val)))
     
     def __add__(self,other):
