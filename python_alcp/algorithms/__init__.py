@@ -7,5 +7,6 @@ from . import (
     gcd_dfu,
     root,
     zx_factorization,
-    discrete_log
+    discrete_log,
+    grobner
 )
