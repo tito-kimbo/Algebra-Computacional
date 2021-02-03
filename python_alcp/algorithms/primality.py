@@ -45,13 +45,15 @@ def is_prime_aks(n):
                 found = False
         if not found:
             r+=1
-    if n.val <= r:
-        return True
     
     #is mcd(k,n)!=1
     for i in range(2,r+1):
-        if gcd(Z.build(i),n) != Z.one:
+        g = gcd(Z.build(i),n)
+        if g.val > 1 and g.val < n.val:
             return False
+    
+    if n.val <= r:
+        return True
     
     #test (X+a)^n = X^n+a in Z_n[X] (mod X^r-1)
     sqrt_phi_r = math.sqrt(euler_phi(r))
