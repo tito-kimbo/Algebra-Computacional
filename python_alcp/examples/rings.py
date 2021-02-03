@@ -127,7 +127,7 @@ class Integers(EuclideanDomain):
 
     def elements(cls):
         def elemgen():
-            yield 0
+            yield cls(0)
             i = 1
             while True:
                 yield cls(i)

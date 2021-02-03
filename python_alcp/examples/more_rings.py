@@ -77,7 +77,7 @@ class RationalElement(FieldElement):
         return type(self)(-self.num, self.den)
 
     def normal(self):
-        if(self.val < 0):
+        if(self < 0):
             return -self
         else:
             return self 

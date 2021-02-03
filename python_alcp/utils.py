@@ -96,6 +96,7 @@ def primes():
 
 def prime_factors(n: int):
     # Crude factorization
+    n = abs(n)
     res = defaultdict(lambda: 0)
     for p in primes():
         if n == 1:

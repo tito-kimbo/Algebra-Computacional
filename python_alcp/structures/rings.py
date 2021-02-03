@@ -295,6 +295,12 @@ class FieldElement(EuclideanDomainElement):
     def inverse(self):
         pass
 
+    def __floordiv__(self, other):
+        return self / other
+
+    def __mod__(self, other):
+        return type(self)(0)
+
     @abstractmethod
     def __truediv__(self,other):
         pass

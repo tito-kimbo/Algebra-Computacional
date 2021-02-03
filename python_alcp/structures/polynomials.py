@@ -171,6 +171,16 @@ class PolynomialRingElement(RingElement):
                 new_val.append((i+1)*c)
         return type(self)(new_val)
 
+    def __call__(self, elem):
+        return self.eval(elem)
+
+    def eval(self, elem):
+        elem = type(self).coefRing(elem)
+        res = self.coefs[-1]
+        for c in reversed(self.coefs[:-1]):
+            res = res*elem + c
+        return res
+
 
     def is_unit(self):
         return self.deg() == 0 and self.val[0].is_unit()
